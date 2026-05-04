@@ -569,7 +569,7 @@ export function DayPanel({
                           size="sm"
                           onClick={() => {
                             persist(id);
-                            setExpandedSlot(null);
+                            setExpandedId(null);
                             toast.success("Bloco salvo");
                           }}
                           className="bg-gradient-primary text-primary-foreground hover:opacity-90"
@@ -584,17 +584,13 @@ export function DayPanel({
             })}
           </div>
 
-          {!extraVisible && (
-            <button
-              onClick={() => {
-                setExtraVisible(true);
-                setExpandedSlot("Extra");
-              }}
-              className="mt-3 w-full inline-flex items-center justify-center gap-1.5 px-3 h-10 rounded-xl border border-dashed border-primary/40 bg-primary/5 text-xs font-mono uppercase tracking-[0.18em] text-primary hover:bg-primary/10 transition-colors"
-            >
-              + Adicionar conteúdo extra
-            </button>
-          )}
+          <button
+            onClick={handleAddRow}
+            className="mt-3 w-full inline-flex items-center justify-center gap-1.5 px-3 h-10 rounded-xl border border-dashed border-primary/40 bg-primary/5 text-xs font-mono uppercase tracking-[0.18em] text-primary hover:bg-primary/10 transition-colors"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            Adicionar conteúdo
+          </button>
 
           <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60 text-center">
             Clique em uma linha para abrir o editor completo · "Salvar dia" persiste todos os blocos
