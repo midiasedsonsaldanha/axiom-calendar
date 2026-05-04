@@ -35,7 +35,7 @@ export function Dashboard({ items, onJumpCalendar }: DashboardProps) {
   );
 
   const total = monthItems.length;
-  const sales = monthItems.filter((i) => i.format === "Venda").length;
+  const sales = 0;
   const posted = monthItems.filter((i) => i.status === "posted").length;
 
   const byType = useMemo(() => {
@@ -155,7 +155,7 @@ export function Dashboard({ items, onJumpCalendar }: DashboardProps) {
             {CONTENT_FORMATS.map((f) => {
               const v = byFormat[f] ?? 0;
               const pct = Math.round((v / totalForFormat) * 100);
-              const isSale = f === "Venda";
+              const isSale = false;
               return (
                 <div key={f}>
                   <div className="flex items-center justify-between text-xs mb-1">

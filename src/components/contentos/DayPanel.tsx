@@ -51,8 +51,8 @@ const empty = (iso: string, slot: string): ContentItem => ({
   date: iso,
   time: slot === "Extra" ? "" : slot,
   slot,
-  type: "Reels",
-  format: "Educativo",
+  type: "Frase",
+  format: "Reels",
   product: "",
   plan: "",
   title: "",
@@ -118,7 +118,7 @@ export function DayPanel({
   };
 
   const isFilled = (it: ContentItem) =>
-    !!(it.title || it.description || it.plan || it.format !== "Educativo" || it.networks.length > 0);
+    !!(it.title || it.description || it.plan || it.networks.length > 0);
 
   const persist = (slot: string) => {
     const it = drafts[slot];
@@ -176,7 +176,7 @@ export function DayPanel({
   };
 
   const dayCount = items.length;
-  const hasSales = items.some((i) => i.format === "Venda");
+  const hasSales = false;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
