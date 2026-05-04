@@ -122,7 +122,7 @@ export function useContentStore(ownerId?: string) {
         reload();
       }
     },
-    [user, items, reload],
+    [user, effectiveOwnerId, items, reload],
   );
 
   const remove = useCallback(
