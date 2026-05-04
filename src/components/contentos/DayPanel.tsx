@@ -349,7 +349,7 @@ export function DayPanel({
 
                     {/* Title / Hook */}
                     <button
-                      onClick={() => setExpandedSlot(isExpanded ? null : slot)}
+                      onClick={() => setExpandedId(isExpanded ? null : id)}
                       className={cn(
                         "px-3 py-2 text-left text-xs transition-colors min-h-[44px] flex items-center",
                         filled ? "bg-surface-elevated" : "bg-surface",
@@ -370,7 +370,7 @@ export function DayPanel({
                     <div className={cn("px-1 py-1 flex items-center", filled ? "bg-surface-elevated" : "bg-surface")}>
                       <Select
                         value={it.format}
-                        onValueChange={(v) => updateDraft(slot, { format: v as any })}
+                        onValueChange={(v) => updateDraft(id, { format: v as any })}
                       >
                         <SelectTrigger className="h-9 border-0 bg-transparent shadow-none text-xs px-2 hover:bg-surface focus:ring-1 focus:ring-primary/40">
                           <SelectValue />
@@ -386,7 +386,7 @@ export function DayPanel({
                     {/* Inspiração (links) */}
                     <input
                       value={it.plan}
-                      onChange={(e) => updateDraft(slot, { plan: e.target.value })}
+                      onChange={(e) => updateDraft(id, { plan: e.target.value })}
                       placeholder="Cole links de inspiração..."
                       className={cn(
                         "px-3 py-2 text-xs bg-transparent outline-none focus:bg-surface focus:ring-1 focus:ring-inset focus:ring-primary/40",
@@ -400,9 +400,9 @@ export function DayPanel({
                       <Select
                         value={it.status}
                         onValueChange={(v) => {
-                          updateDraft(slot, { status: v as ContentStatus });
+                          updateDraft(id, { status: v as ContentStatus });
                           setPrevStatus((p) => {
-                            const { [slot]: _, ...rest } = p;
+                            const { [id]: _, ...rest } = p;
                             return rest;
                           });
                         }}
@@ -451,22 +451,22 @@ export function DayPanel({
 
                               if (!wasAll && isAll) {
                                 // todas marcadas → vira "Postado", lembrando o status anterior
-                                setPrevStatus((p) => ({ ...p, [slot]: it.status }));
+                                setPrevStatus((p) => ({ ...p, [id]: it.status }));
                                 patch.status = "posted";
                               } else if (wasAll && !isAll) {
                                 // saiu do "todas marcadas" → volta pro status anterior
-                                const restore = prevStatus[slot];
+                                const restore = prevStatus[id];
                                 if (restore) {
                                   patch.status = restore;
                                   setPrevStatus((p) => {
-                                    const { [slot]: _, ...rest } = p;
+                                    const { [id]: _, ...rest } = p;
                                     return rest;
                                   });
                                 } else if (it.status === "posted") {
                                   patch.status = "none";
                                 }
                               }
-                              updateDraft(slot, patch);
+                              updateDraft(id, patch);
                             }}
                             title={net.full}
                             className={cn(
@@ -490,7 +490,7 @@ export function DayPanel({
                       )}
                     >
                       <button
-                        onClick={() => handleClearSlot(slot)}
+                        onClick={() => handleRemoveRow(id)}
                         className="p-1.5 rounded-md text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 transition-colors"
                         title="Limpar bloco"
                       >
@@ -507,7 +507,7 @@ export function DayPanel({
                           <FieldLabel>Título / Hook</FieldLabel>
                           <Input
                             value={it.title}
-                            onChange={(e) => updateDraft(slot, { title: e.target.value })}
+                            onChange={(e) => updateDraft(id, { title: e.target.value })}
                             placeholder="Headline matadora..."
                             className="bg-surface border-border focus-visible:ring-primary/40"
                           />
@@ -516,7 +516,7 @@ export function DayPanel({
                             <FieldLabel>Tipo</FieldLabel>
                             <Select
                               value={it.type}
-                              onValueChange={(v) => updateDraft(slot, { type: v as any })}
+                              onValueChange={(v) => updateDraft(id, { type: v as any })}
                             >
                               <SelectTrigger className="mt-1.5 bg-surface border-border">
                                 <SelectValue />
@@ -533,7 +533,7 @@ export function DayPanel({
                             <FieldLabel>Descrição / Legenda</FieldLabel>
                             <Textarea
                               value={it.description}
-                              onChange={(e) => updateDraft(slot, { description: e.target.value })}
+                              onChange={(e) => updateDraft(id, { description: e.target.value })}
                               rows={4}
                               placeholder="Resumo do que será dito..."
                               className="mt-1.5 bg-surface border-border focus-visible:ring-primary/40 resize-none"
@@ -548,7 +548,7 @@ export function DayPanel({
                           </FieldLabel>
                           <Textarea
                             value={it.script}
-                            onChange={(e) => updateDraft(slot, { script: e.target.value })}
+                            onChange={(e) => updateDraft(id, { script: e.target.value })}
                             rows={11}
                             placeholder="Hook · desenvolvimento · CTA..."
                             className="bg-surface border-border focus-visible:ring-primary/40 font-mono text-xs leading-relaxed resize-none"
@@ -560,7 +560,7 @@ export function DayPanel({
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDuplicate(slot)}
+                          onClick={() => handleDuplicate(id)}
                           className="gap-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10"
                         >
                           <Copy className="w-3.5 h-3.5" /> Duplicar
@@ -568,7 +568,7 @@ export function DayPanel({
                         <Button
                           size="sm"
                           onClick={() => {
-                            persist(slot);
+                            persist(id);
                             setExpandedSlot(null);
                             toast.success("Bloco salvo");
                           }}
