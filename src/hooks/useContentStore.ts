@@ -140,6 +140,7 @@ export function useContentStore(ownerId?: string, canWrite = true) {
 
   const duplicate = useCallback(
     async (id: string) => {
+      if (!canWrite) return;
       const found = items.find((x) => x.id === id);
       if (!found || !user) return;
       const copy: ContentItem = {
@@ -151,11 +152,12 @@ export function useContentStore(ownerId?: string, canWrite = true) {
       };
       await upsert(copy);
     },
-    [items, user, upsert],
+    [items, user, canWrite, upsert],
   );
 
   const copyWeek = useCallback(
     (fromIso: string, toIso: string) => {
+      if (!canWrite) return 0;
       const fromDate = new Date(fromIso + "T00:00:00");
       const toDate = new Date(toIso + "T00:00:00");
       const diffDays = Math.round(
@@ -183,7 +185,7 @@ export function useContentStore(ownerId?: string, canWrite = true) {
       });
       return count;
     },
-    [items, upsert],
+    [items, canWrite, upsert],
   );
 
   return { items, loading, upsert, remove, duplicate, copyWeek, ownerId: effectiveOwnerId };
