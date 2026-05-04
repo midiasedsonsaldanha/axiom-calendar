@@ -726,7 +726,7 @@ ${imgs.length ? `<h2>Imagens</h2><div class="imgs">${imgs.map((u) => `<img src="
                         <Button
                           size="sm"
                           onClick={() => {
-                            persist(id);
+                            persist(id, true);
                             setExpandedId(null);
                             toast.success("Bloco salvo");
                           }}
