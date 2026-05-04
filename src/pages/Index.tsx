@@ -126,7 +126,7 @@ const Index = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todos os status</SelectItem>
-                    {(Object.keys(STATUS_META) as ContentStatus[]).map((s) => (
+                    {STATUS_ORDER.map((s) => (
                       <SelectItem key={s} value={s}>{STATUS_META[s].label}</SelectItem>
                     ))}
                   </SelectContent>
