@@ -951,9 +951,11 @@ export function stringifyScript(s: ScriptSections): string {
 
 function RichEditor({
   value,
+  readOnly = false,
   onChange,
 }: {
   value: string;
+  readOnly?: boolean;
   onChange: (html: string) => void;
 }) {
   const sections = parseScript(value);
@@ -967,6 +969,7 @@ function RichEditor({
         placeholder="Frase de impacto inicial..."
         value={sections.hook}
         onChange={(h) => update("hook", h)}
+        readOnly={readOnly}
         minHeight={90}
       />
       <SectionEditor
@@ -974,6 +977,7 @@ function RichEditor({
         placeholder="Conteúdo principal, argumentos, exemplos..."
         value={sections.dev}
         onChange={(h) => update("dev", h)}
+        readOnly={readOnly}
         minHeight={180}
       />
       <SectionEditor
@@ -981,6 +985,7 @@ function RichEditor({
         placeholder="Chamada para ação final..."
         value={sections.cta}
         onChange={(h) => update("cta", h)}
+        readOnly={readOnly}
         minHeight={90}
       />
     </div>
