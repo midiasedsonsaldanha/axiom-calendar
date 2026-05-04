@@ -185,5 +185,5 @@ export function useContentStore(ownerId?: string) {
     [items, upsert],
   );
 
-  return { items, loading, upsert, remove, duplicate, copyWeek };
+  return { items, loading, upsert, remove, duplicate, copyWeek, ownerId: effectiveOwnerId };
 }
