@@ -404,13 +404,34 @@ export function DayPanel({
                           <button
                             key={net.id}
                             type="button"
-                            onClick={() =>
-                              updateDraft(slot, {
-                                networks: active
-                                  ? it.networks.filter((n) => n !== net.id)
-                                  : [...it.networks, net.id],
-                              })
-                            }
+                            onClick={() => {
+                              const nextNetworks = active
+                                ? it.networks.filter((n) => n !== net.id)
+                                : [...it.networks, net.id];
+                              const total = NETWORKS.length;
+                              const wasAll = it.networks.length === total;
+                              const isAll = nextNetworks.length === total;
+                              const patch: Partial<ContentItem> = { networks: nextNetworks };
+
+                              if (!wasAll && isAll) {
+                                // todas marcadas → vira "Postado", lembrando o status anterior
+                                setPrevStatus((p) => ({ ...p, [slot]: it.status }));
+                                patch.status = "posted";
+                              } else if (wasAll && !isAll) {
+                                // saiu do "todas marcadas" → volta pro status anterior
+                                const restore = prevStatus[slot];
+                                if (restore) {
+                                  patch.status = restore;
+                                  setPrevStatus((p) => {
+                                    const { [slot]: _, ...rest } = p;
+                                    return rest;
+                                  });
+                                } else if (it.status === "posted") {
+                                  patch.status = "none";
+                                }
+                              }
+                              updateDraft(slot, patch);
+                            }}
                             title={net.full}
                             className={cn(
                               "px-1.5 h-5 rounded text-[9px] font-mono font-semibold border transition-all",
