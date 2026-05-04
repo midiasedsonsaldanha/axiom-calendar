@@ -363,7 +363,13 @@ export function DayPanel({
                     <div className={cn("px-1 py-1 flex items-center", filled ? "bg-surface-elevated" : "bg-surface")}>
                       <Select
                         value={it.status}
-                        onValueChange={(v) => updateDraft(slot, { status: v as ContentStatus, prevStatus: undefined })}
+                        onValueChange={(v) => {
+                          updateDraft(slot, { status: v as ContentStatus });
+                          setPrevStatus((p) => {
+                            const { [slot]: _, ...rest } = p;
+                            return rest;
+                          });
+                        }}
                       >
                         <SelectTrigger
                           className={cn(
