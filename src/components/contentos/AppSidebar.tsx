@@ -1,5 +1,7 @@
-import { LayoutDashboard, CalendarDays, Sparkles } from "lucide-react";
+import { LayoutDashboard, CalendarDays, Sparkles, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 export type AppView = "dashboard" | "calendar";
 
@@ -14,6 +16,15 @@ const items: { id: AppView; label: string; icon: typeof LayoutDashboard }[] = [
 ];
 
 export function AppSidebar({ view, onChange }: AppSidebarProps) {
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast("Sessão encerrada");
+  };
+
+  const initial = (user?.email?.[0] ?? "?").toUpperCase();
+
   return (
     <aside className="hidden md:flex w-[260px] shrink-0 flex-col border-r border-border bg-sidebar/60 backdrop-blur-xl">
       <div className="flex items-center gap-2.5 px-5 h-16 border-b border-border">
@@ -74,6 +85,29 @@ export function AppSidebar({ view, onChange }: AppSidebarProps) {
         <p className="text-xs text-muted-foreground leading-relaxed">
           Use os <span className="text-foreground font-medium">templates por dia</span> para acelerar seu fluxo editorial.
         </p>
+      </div>
+
+      {/* User card */}
+      <div className="p-3 border-t border-border">
+        <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-surface transition-colors">
+          <div className="w-9 h-9 rounded-lg bg-gradient-primary grid place-items-center text-primary-foreground font-semibold text-sm shrink-0">
+            {initial}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-medium truncate">{user?.email ?? "—"}</p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+              Conectado
+            </p>
+          </div>
+          <button
+            onClick={handleSignOut}
+            className="p-2 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+            aria-label="Sair"
+            title="Sair"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </aside>
   );
