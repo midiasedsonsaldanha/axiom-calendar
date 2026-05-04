@@ -751,27 +751,29 @@ ${imgs.length ? `<h2 style="font-size:11px;letter-spacing:.18em;text-transform:u
                         </div>
                       </div>
 
-                      <div className="mt-4 flex items-center justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDuplicate(id)}
-                          className="gap-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10"
-                        >
-                          <Copy className="w-3.5 h-3.5" /> Duplicar
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() => {
-                            persist(id, true);
-                            setExpandedId(null);
-                            toast.success("Bloco salvo");
-                          }}
-                          className="bg-gradient-primary text-primary-foreground hover:opacity-90"
-                        >
-                          Confirmar bloco
-                        </Button>
-                      </div>
+                      {!readOnly && (
+                        <div className="mt-4 flex items-center justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDuplicate(id)}
+                            className="gap-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                          >
+                            <Copy className="w-3.5 h-3.5" /> Duplicar
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              persist(id, true);
+                              setExpandedId(null);
+                              toast.success("Bloco salvo");
+                            }}
+                            className="bg-gradient-primary text-primary-foreground hover:opacity-90"
+                          >
+                            Confirmar bloco
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
