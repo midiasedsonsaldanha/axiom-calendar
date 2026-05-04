@@ -625,40 +625,42 @@ export function DayPanel({
                               Roteiro completo
                             </FieldLabel>
                             <div className="flex items-center gap-1">
-                              <label
-                                className="inline-flex items-center gap-1 h-7 px-2 rounded-md border border-border bg-surface hover:bg-surface-elevated text-[10px] font-mono uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
-                                title="Adicionar imagens"
-                              >
-                                <ImagePlus className="w-3 h-3" />
-                                Imagens
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  multiple
-                                  className="hidden"
-                                  onChange={(e) => {
-                                    const files = Array.from(e.target.files ?? []);
-                                    if (!files.length) return;
-                                    Promise.all(
-                                      files.map(
-                                        (f) =>
-                                          new Promise<string>((res) => {
-                                            const r = new FileReader();
-                                            r.onload = () => res(String(r.result));
-                                            r.readAsDataURL(f);
-                                          }),
-                                      ),
-                                    ).then((urls) => {
-                                      setScriptImages((prev) => ({
-                                        ...prev,
-                                        [id]: [...(prev[id] ?? []), ...urls],
-                                      }));
-                                      toast.success(`${urls.length} imagem(ns) adicionada(s)`);
-                                    });
-                                    e.target.value = "";
-                                  }}
-                                />
-                              </label>
+                              {!readOnly && (
+                                <label
+                                  className="inline-flex items-center gap-1 h-7 px-2 rounded-md border border-border bg-surface hover:bg-surface-elevated text-[10px] font-mono uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+                                  title="Adicionar imagens"
+                                >
+                                  <ImagePlus className="w-3 h-3" />
+                                  Imagens
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    className="hidden"
+                                    onChange={(e) => {
+                                      const files = Array.from(e.target.files ?? []);
+                                      if (!files.length) return;
+                                      Promise.all(
+                                        files.map(
+                                          (f) =>
+                                            new Promise<string>((res) => {
+                                              const r = new FileReader();
+                                              r.onload = () => res(String(r.result));
+                                              r.readAsDataURL(f);
+                                            }),
+                                        ),
+                                      ).then((urls) => {
+                                        setScriptImages((prev) => ({
+                                          ...prev,
+                                          [id]: [...(prev[id] ?? []), ...urls],
+                                        }));
+                                        toast.success(`${urls.length} imagem(ns) adicionada(s)`);
+                                      });
+                                      e.target.value = "";
+                                    }}
+                                  />
+                                </label>
+                              )}
                               <button
                                 type="button"
                                 onClick={() => {
@@ -714,6 +716,7 @@ ${imgs.length ? `<h2 style="font-size:11px;letter-spacing:.18em;text-transform:u
                           </div>
                           <RichEditor
                             value={it.script}
+                            readOnly={readOnly}
                             onChange={(html) => updateDraft(id, { script: html })}
                           />
                           {(scriptImages[id]?.length ?? 0) > 0 && (
@@ -728,7 +731,7 @@ ${imgs.length ? `<h2 style="font-size:11px;letter-spacing:.18em;text-transform:u
                                   >
                                     <img src={src} alt={`Imagem ${i + 1}`} className="w-full h-20 object-cover hover:opacity-90 transition-opacity" />
                                   </button>
-                                  <button
+                                  {!readOnly && <button
                                     type="button"
                                     onClick={() =>
                                       setScriptImages((prev) => ({
@@ -740,7 +743,7 @@ ${imgs.length ? `<h2 style="font-size:11px;letter-spacing:.18em;text-transform:u
                                     title="Remover"
                                   >
                                     <X className="w-3 h-3" />
-                                  </button>
+                                  </button>}
                                 </div>
                               ))}
                             </div>
