@@ -273,7 +273,7 @@ export function DayPanel({
           {/* Column header */}
           <div className="grid grid-cols-[88px_minmax(0,1.5fr)_120px_minmax(0,1.2fr)_140px_180px_44px] gap-px rounded-t-xl overflow-hidden border border-border bg-border">
             <HeaderCell>Horário</HeaderCell>
-            <HeaderCell>Descrição</HeaderCell>
+            <HeaderCell>Título / Hook</HeaderCell>
             <HeaderCell>Formato</HeaderCell>
             <HeaderCell>Plano</HeaderCell>
             <HeaderCell>Status</HeaderCell>
