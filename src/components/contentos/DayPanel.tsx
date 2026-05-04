@@ -326,7 +326,7 @@ export function DayPanel({
               </h2>
             </div>
 
-            {template && (
+            {template && !readOnly && (
               <button
                 onClick={handleApplyTemplate}
                 className="hidden md:inline-flex items-center gap-1.5 px-3 h-9 rounded-lg border border-primary/30 bg-primary/5 text-xs text-primary hover:bg-primary/10 transition-colors"
@@ -336,13 +336,15 @@ export function DayPanel({
               </button>
             )}
 
-            <Button
-              size="sm"
-              onClick={handleSaveAll}
-              className="h-9 px-4 bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-glow-soft"
-            >
-              Salvar dia
-            </Button>
+            {!readOnly && (
+              <Button
+                size="sm"
+                onClick={handleSaveAll}
+                className="h-9 px-4 bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-glow-soft"
+              >
+                Salvar dia
+              </Button>
+            )}
           </div>
 
           {/* Day strip mini header — like a banner */}
@@ -396,7 +398,7 @@ export function DayPanel({
                       !isLast && "border-b border-border",
                     )}
                   >
-                    {/* Time (editable) */}
+                      {/* Time */}
                     <div
                       className={cn(
                         "p-0 flex items-center justify-center",
@@ -406,6 +408,8 @@ export function DayPanel({
                       <input
                         type="time"
                         value={it.time}
+                        readOnly={readOnly}
+                        disabled={readOnly}
                         onChange={(e) => updateDraft(id, { time: e.target.value, slot: e.target.value })}
                         className={cn(
                           "w-full h-full px-2 py-2.5 bg-transparent outline-none text-center font-mono text-xs [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-80 [&::-webkit-calendar-picker-indicator]:cursor-pointer",
@@ -452,9 +456,10 @@ export function DayPanel({
                     </div>
 
                     {/* Inspiração (links) */}
-                    <InspirationCell
+                      <InspirationCell
                       value={it.plan}
                       filled={filled}
+                        readOnly={readOnly}
                       onChange={(v) => updateDraft(id, { plan: v })}
                     />
 
