@@ -26,6 +26,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Copy,
+  ExternalLink,
   Flame,
   Plus,
   Sparkles,
@@ -384,16 +385,32 @@ export function DayPanel({
                     </div>
 
                     {/* Inspiração (links) */}
-                    <input
-                      value={it.plan}
-                      onChange={(e) => updateDraft(id, { plan: e.target.value })}
-                      placeholder="Cole links de inspiração..."
-                      className={cn(
-                        "px-3 py-2 text-xs bg-transparent outline-none focus:bg-surface focus:ring-1 focus:ring-inset focus:ring-primary/40",
-                        filled ? "bg-surface-elevated" : "bg-surface",
-                        "placeholder:text-muted-foreground/50 placeholder:italic",
-                      )}
-                    />
+                    <div className={cn("relative flex items-center", filled ? "bg-surface-elevated" : "bg-surface")}>
+                      <input
+                        value={it.plan}
+                        onChange={(e) => updateDraft(id, { plan: e.target.value })}
+                        placeholder="Cole links de inspiração..."
+                        className={cn(
+                          "flex-1 px-3 py-2 pr-8 text-xs bg-transparent outline-none focus:bg-surface focus:ring-1 focus:ring-inset focus:ring-primary/40",
+                          "placeholder:text-muted-foreground/50 placeholder:italic",
+                        )}
+                      />
+                      {(() => {
+                        const firstUrl = (it.plan || "").match(/https?:\/\/\S+/i)?.[0];
+                        if (!firstUrl) return null;
+                        return (
+                          <a
+                            href={firstUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title={firstUrl}
+                            className="absolute right-2 inline-flex items-center justify-center w-6 h-6 rounded text-primary hover:bg-primary/10 transition-colors"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                        );
+                      })()}
+                    </div>
 
                     {/* Status */}
                     <div className={cn("px-1 py-1 flex items-center", filled ? "bg-surface-elevated" : "bg-surface")}>
