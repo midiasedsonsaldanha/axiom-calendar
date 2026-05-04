@@ -878,3 +878,73 @@ function InspirationCell({
     </div>
   );
 }
+
+function RichEditor({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (html: string) => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  // initialize / sync only when external value changes and differs from DOM
+  useEffect(() => {
+    if (ref.current && ref.current.innerHTML !== (value || "")) {
+      ref.current.innerHTML = value || "";
+    }
+  }, [value]);
+
+  const exec = (cmd: string, arg?: string) => {
+    ref.current?.focus();
+    document.execCommand(cmd, false, arg);
+    if (ref.current) onChange(ref.current.innerHTML);
+  };
+
+  const tools: { icon: typeof Bold; title: string; cmd: string; arg?: string }[] = [
+    { icon: Bold, title: "Negrito", cmd: "bold" },
+    { icon: Italic, title: "Itálico", cmd: "italic" },
+    { icon: Underline, title: "Sublinhado", cmd: "underline" },
+    { icon: Heading, title: "Título", cmd: "formatBlock", arg: "H3" },
+    { icon: Quote, title: "Citação", cmd: "formatBlock", arg: "BLOCKQUOTE" },
+    { icon: List, title: "Lista", cmd: "insertUnorderedList" },
+    { icon: ListOrdered, title: "Lista numerada", cmd: "insertOrderedList" },
+  ];
+
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-wrap items-center gap-1 p-1 rounded-md border border-border bg-surface">
+        {tools.map(({ icon: Icon, title, cmd, arg }) => (
+          <button
+            key={title}
+            type="button"
+            onMouseDown={(e) => {
+              e.preventDefault();
+              exec(cmd, arg);
+            }}
+            title={title}
+            className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-surface-elevated transition-colors"
+          >
+            <Icon className="w-3.5 h-3.5" />
+          </button>
+        ))}
+      </div>
+      <div
+        ref={ref}
+        contentEditable
+        suppressContentEditableWarning
+        onInput={(e) => onChange((e.target as HTMLDivElement).innerHTML)}
+        data-placeholder="Hook · desenvolvimento · CTA..."
+        className={cn(
+          "min-h-[260px] rounded-md border border-border bg-surface px-3 py-2 text-xs leading-relaxed",
+          "focus:outline-none focus:ring-1 focus:ring-primary/40",
+          "[&_h3]:text-base [&_h3]:font-semibold [&_h3]:my-1",
+          "[&_blockquote]:border-l-2 [&_blockquote]:border-primary/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-muted-foreground",
+          "[&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5",
+          "[&_b]:font-bold [&_strong]:font-bold",
+          "empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/50 empty:before:italic",
+        )}
+      />
+    </div>
+  );
+}
