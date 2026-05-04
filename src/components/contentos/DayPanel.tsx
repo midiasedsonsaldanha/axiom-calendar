@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -663,7 +663,7 @@ export function DayPanel({
 <h1>${esc(it.title || "Sem título")}</h1>
 <div class="meta">${esc(it.date)} · ${esc(it.time)} · ${esc(it.type)} · ${esc(it.format)}</div>
 ${it.description ? `<h2>Descrição</h2><pre>${esc(it.description)}</pre>` : ""}
-${it.script ? `<h2>Roteiro</h2><pre>${esc(it.script)}</pre>` : ""}
+${it.script ? `<h2>Roteiro</h2><div>${it.script}</div>` : ""}
 ${imgs.length ? `<h2>Imagens</h2><div class="imgs">${imgs.map((u) => `<img src="${u}"/>`).join("")}</div>` : ""}
 <script>window.onload=()=>setTimeout(()=>window.print(),300);<\/script>
 </body></html>`);
@@ -677,37 +677,9 @@ ${imgs.length ? `<h2>Imagens</h2><div class="imgs">${imgs.map((u) => `<img src="
                               </button>
                             </div>
                           </div>
-                          <div className="flex flex-wrap items-center gap-1 p-1 rounded-md border border-border bg-surface">
-                            {[
-                              { icon: Bold, title: "Negrito", fn: () => applyFormat(id, "wrap", "**") },
-                              { icon: Italic, title: "Itálico", fn: () => applyFormat(id, "wrap", "*") },
-                              { icon: Underline, title: "Sublinhado", fn: () => applyFormat(id, "wrap", "__") },
-                              { icon: Heading, title: "Título", fn: () => applyFormat(id, "line", "## ") },
-                              { icon: Quote, title: "Citação", fn: () => applyFormat(id, "line", "> ") },
-                              { icon: List, title: "Lista", fn: () => applyFormat(id, "line", "- ") },
-                              { icon: ListOrdered, title: "Lista numerada", fn: () => applyFormat(id, "line", "{n}. ") },
-                            ].map(({ icon: Icon, title, fn }) => (
-                              <button
-                                key={title}
-                                type="button"
-                                onClick={fn}
-                                title={title}
-                                className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-surface-elevated transition-colors"
-                              >
-                                <Icon className="w-3.5 h-3.5" />
-                              </button>
-                            ))}
-                          </div>
-                          <Textarea
-                            ref={(el) => {
-                              if (el) scriptRefs.set(id, el);
-                              else scriptRefs.delete(id);
-                            }}
+                          <RichEditor
                             value={it.script}
-                            onChange={(e) => updateDraft(id, { script: e.target.value })}
-                            rows={11}
-                            placeholder="Hook · desenvolvimento · CTA... (use a barra de formatação acima)"
-                            className="bg-surface border-border focus-visible:ring-primary/40 font-mono text-xs leading-relaxed resize-none"
+                            onChange={(html) => updateDraft(id, { script: html })}
                           />
                           {(scriptImages[id]?.length ?? 0) > 0 && (
                             <div className="grid grid-cols-3 gap-2">
@@ -901,6 +873,76 @@ function InspirationCell({
         className={cn(
           "flex-1 px-3 py-2 text-xs bg-transparent outline-none focus:bg-surface focus:ring-1 focus:ring-inset focus:ring-primary/40",
           "placeholder:text-muted-foreground/50 placeholder:italic",
+        )}
+      />
+    </div>
+  );
+}
+
+function RichEditor({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (html: string) => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  // initialize / sync only when external value changes and differs from DOM
+  useEffect(() => {
+    if (ref.current && ref.current.innerHTML !== (value || "")) {
+      ref.current.innerHTML = value || "";
+    }
+  }, [value]);
+
+  const exec = (cmd: string, arg?: string) => {
+    ref.current?.focus();
+    document.execCommand(cmd, false, arg);
+    if (ref.current) onChange(ref.current.innerHTML);
+  };
+
+  const tools: { icon: typeof Bold; title: string; cmd: string; arg?: string }[] = [
+    { icon: Bold, title: "Negrito", cmd: "bold" },
+    { icon: Italic, title: "Itálico", cmd: "italic" },
+    { icon: Underline, title: "Sublinhado", cmd: "underline" },
+    { icon: Heading, title: "Título", cmd: "formatBlock", arg: "H3" },
+    { icon: Quote, title: "Citação", cmd: "formatBlock", arg: "BLOCKQUOTE" },
+    { icon: List, title: "Lista", cmd: "insertUnorderedList" },
+    { icon: ListOrdered, title: "Lista numerada", cmd: "insertOrderedList" },
+  ];
+
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-wrap items-center gap-1 p-1 rounded-md border border-border bg-surface">
+        {tools.map(({ icon: Icon, title, cmd, arg }) => (
+          <button
+            key={title}
+            type="button"
+            onMouseDown={(e) => {
+              e.preventDefault();
+              exec(cmd, arg);
+            }}
+            title={title}
+            className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-surface-elevated transition-colors"
+          >
+            <Icon className="w-3.5 h-3.5" />
+          </button>
+        ))}
+      </div>
+      <div
+        ref={ref}
+        contentEditable
+        suppressContentEditableWarning
+        onInput={(e) => onChange((e.target as HTMLDivElement).innerHTML)}
+        data-placeholder="Hook · desenvolvimento · CTA..."
+        className={cn(
+          "min-h-[260px] rounded-md border border-border bg-surface px-3 py-2 text-xs leading-relaxed",
+          "focus:outline-none focus:ring-1 focus:ring-primary/40",
+          "[&_h3]:text-base [&_h3]:font-semibold [&_h3]:my-1",
+          "[&_blockquote]:border-l-2 [&_blockquote]:border-primary/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-muted-foreground",
+          "[&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5",
+          "[&_b]:font-bold [&_strong]:font-bold",
+          "empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/50 empty:before:italic",
         )}
       />
     </div>
