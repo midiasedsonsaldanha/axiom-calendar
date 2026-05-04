@@ -163,6 +163,7 @@ const Index = () => {
         upsert={upsert}
         remove={remove}
         duplicate={duplicate}
+        onChangeIso={(iso) => setPickedDay(iso)}
       />
     </div>
   );

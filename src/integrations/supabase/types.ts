@@ -21,8 +21,11 @@ export type Database = {
           description: string
           format: string
           id: string
+          networks: string[]
+          plan: string
           product: string
           script: string
+          slot: string
           status: Database["public"]["Enums"]["content_status"]
           time: string
           title: string
@@ -36,8 +39,11 @@ export type Database = {
           description?: string
           format?: string
           id?: string
+          networks?: string[]
+          plan?: string
           product?: string
           script?: string
+          slot?: string
           status?: Database["public"]["Enums"]["content_status"]
           time?: string
           title?: string
@@ -51,8 +57,11 @@ export type Database = {
           description?: string
           format?: string
           id?: string
+          networks?: string[]
+          plan?: string
           product?: string
           script?: string
+          slot?: string
           status?: Database["public"]["Enums"]["content_status"]
           time?: string
           title?: string

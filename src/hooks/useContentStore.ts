@@ -9,13 +9,16 @@ interface DbRow {
   user_id: string;
   date: string;
   time: string;
+  slot: string;
   type: string;
   format: string;
   product: string;
+  plan: string;
   title: string;
   description: string;
   script: string;
   status: ContentStatus;
+  networks: string[];
   created_at: string;
   updated_at: string;
 }
@@ -24,13 +27,16 @@ const fromRow = (r: DbRow): ContentItem => ({
   id: r.id,
   date: r.date,
   time: r.time,
+  slot: r.slot ?? "",
   type: r.type as ContentItem["type"],
   format: r.format as ContentItem["format"],
   product: r.product,
+  plan: r.plan ?? "",
   title: r.title,
   description: r.description,
   script: r.script,
   status: r.status,
+  networks: r.networks ?? [],
   createdAt: new Date(r.created_at).getTime(),
 });
 
@@ -94,13 +100,16 @@ export function useContentStore() {
         user_id: user.id,
         date: item.date,
         time: item.time,
+        slot: item.slot,
         type: item.type,
         format: item.format,
         product: item.product,
+        plan: item.plan,
         title: item.title,
         description: item.description,
         script: item.script,
         status: item.status,
+        networks: item.networks,
       };
 
       const { error } = await supabase
