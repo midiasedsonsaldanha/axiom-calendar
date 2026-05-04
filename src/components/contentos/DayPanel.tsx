@@ -371,7 +371,7 @@ export function DayPanel({
         {/* Grid */}
         <div className="px-4 md:px-6 py-5">
           {/* Column header */}
-          <div className="grid grid-cols-[88px_minmax(0,1.5fr)_120px_minmax(0,1.2fr)_140px_180px_44px] gap-px rounded-t-xl overflow-hidden border border-border bg-border">
+            <div className="grid grid-cols-[88px_minmax(0,1.5fr)_120px_minmax(0,1.2fr)_140px_180px_44px] gap-px rounded-t-xl overflow-hidden border border-border bg-border">
             <HeaderCell>Horário</HeaderCell>
             <HeaderCell>Título / Hook</HeaderCell>
             <HeaderCell>Formato</HeaderCell>
@@ -779,16 +779,18 @@ ${imgs.length ? `<h2 style="font-size:11px;letter-spacing:.18em;text-transform:u
             })}
           </div>
 
-          <button
-            onClick={handleAddRow}
-            className="mt-3 w-full inline-flex items-center justify-center gap-1.5 px-3 h-10 rounded-xl border border-dashed border-primary/40 bg-primary/5 text-xs font-mono uppercase tracking-[0.18em] text-primary hover:bg-primary/10 transition-colors"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            Adicionar conteúdo
-          </button>
+          {!readOnly && (
+            <button
+              onClick={handleAddRow}
+              className="mt-3 w-full inline-flex items-center justify-center gap-1.5 px-3 h-10 rounded-xl border border-dashed border-primary/40 bg-primary/5 text-xs font-mono uppercase tracking-[0.18em] text-primary hover:bg-primary/10 transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Adicionar conteúdo
+            </button>
+          )}
 
           <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60 text-center">
-            Clique em uma linha para abrir o editor completo · "Salvar dia" persiste todos os blocos
+            {readOnly ? "Clique em uma linha para visualizar o conteúdo" : "Clique em uma linha para abrir o editor completo · \"Salvar dia\" persiste todos os blocos"}
           </p>
         </div>
       </SheetContent>
