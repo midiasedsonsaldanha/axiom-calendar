@@ -194,11 +194,11 @@ export function DayPanel({
   const isFilled = (it: ContentItem) =>
     !!(it.title || it.description || it.plan || it.script || it.networks.length > 0);
 
-  const persist = (id: string) => {
+  const persist = (id: string, force = false) => {
     const it = drafts[id];
     if (!it) return;
     const exists = items.some((x) => x.id === it.id);
-    if (!exists && !isFilled(it)) return; // skip empty new rows
+    if (!exists && !force && !isFilled(it)) return; // skip empty new rows
     upsert(it);
   };
 
