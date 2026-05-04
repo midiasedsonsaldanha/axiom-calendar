@@ -44,7 +44,23 @@ const Index = () => {
   const [filterType, setFilterType] = useState<"all" | ContentType>("all");
   const [search, setSearch] = useState("");
 
-  const { items, upsert, remove, duplicate, copyWeek } = useContentStore(currentOwnerId);
+  const store = useContentStore(currentOwnerId);
+  const { items } = store;
+  const blockWrite = () => {
+    // dynamic import avoided; use window.console fallback if needed
+    import("sonner").then(({ toast }) =>
+      toast.error("Você tem acesso somente de leitura nesta agenda"),
+    );
+  };
+  const upsert = isReadOnly ? (() => blockWrite()) as typeof store.upsert : store.upsert;
+  const remove = isReadOnly ? (() => blockWrite()) as typeof store.remove : store.remove;
+  const duplicate = isReadOnly ? (() => blockWrite()) as typeof store.duplicate : store.duplicate;
+  const copyWeek = isReadOnly
+    ? (((..._args: Parameters<typeof store.copyWeek>) => {
+        blockWrite();
+        return 0;
+      }) as typeof store.copyWeek)
+    : store.copyWeek;
 
   const filtered = useMemo(() => {
     return items.filter((it) => {
