@@ -1,103 +1,178 @@
 import { useCallback, useEffect, useState } from "react";
-import type { ContentItem } from "@/types/content";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import type { ContentItem, ContentStatus } from "@/types/content";
+import { toast } from "sonner";
 
-const STORAGE_KEY = "contentos.items.v1";
-
-function load(): ContentItem[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    return JSON.parse(raw) as ContentItem[];
-  } catch {
-    return [];
-  }
+interface DbRow {
+  id: string;
+  user_id: string;
+  date: string;
+  time: string;
+  type: string;
+  format: string;
+  product: string;
+  title: string;
+  description: string;
+  script: string;
+  status: ContentStatus;
+  created_at: string;
+  updated_at: string;
 }
 
-function save(items: ContentItem[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-}
-
-let listeners: Array<(items: ContentItem[]) => void> = [];
-let cache: ContentItem[] | null = null;
-
-function getAll() {
-  if (cache === null) cache = load();
-  return cache;
-}
-
-function setAll(next: ContentItem[]) {
-  cache = next;
-  save(next);
-  listeners.forEach((l) => l(next));
-}
+const fromRow = (r: DbRow): ContentItem => ({
+  id: r.id,
+  date: r.date,
+  time: r.time,
+  type: r.type as ContentItem["type"],
+  format: r.format as ContentItem["format"],
+  product: r.product,
+  title: r.title,
+  description: r.description,
+  script: r.script,
+  status: r.status,
+  createdAt: new Date(r.created_at).getTime(),
+});
 
 export function useContentStore() {
-  const [items, setItems] = useState<ContentItem[]>(() => getAll());
+  const { user } = useAuth();
+  const [items, setItems] = useState<ContentItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const reload = useCallback(async () => {
+    if (!user) {
+      setItems([]);
+      setLoading(false);
+      return;
+    }
+    const { data, error } = await supabase
+      .from("content_items")
+      .select("*")
+      .order("date", { ascending: true });
+    if (error) {
+      toast.error("Erro ao carregar conteúdos");
+      setLoading(false);
+      return;
+    }
+    setItems((data as DbRow[]).map(fromRow));
+    setLoading(false);
+  }, [user]);
 
   useEffect(() => {
-    const l = (next: ContentItem[]) => setItems(next);
-    listeners.push(l);
+    setLoading(true);
+    reload();
+  }, [reload]);
+
+  // realtime subscription so multi-tab stays in sync
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel("content_items_changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "content_items" },
+        () => reload(),
+      )
+      .subscribe();
     return () => {
-      listeners = listeners.filter((x) => x !== l);
+      supabase.removeChannel(channel);
     };
-  }, []);
+  }, [user, reload]);
 
-  const upsert = useCallback((item: ContentItem) => {
-    const all = getAll();
-    const idx = all.findIndex((x) => x.id === item.id);
-    const next =
-      idx >= 0
-        ? all.map((x, i) => (i === idx ? item : x))
-        : [...all, item];
-    setAll(next);
-  }, []);
+  const upsert = useCallback(
+    async (item: ContentItem) => {
+      if (!user) return;
+      const exists = items.some((x) => x.id === item.id);
 
-  const remove = useCallback((id: string) => {
-    setAll(getAll().filter((x) => x.id !== id));
-  }, []);
+      // optimistic
+      setItems((prev) =>
+        exists ? prev.map((x) => (x.id === item.id ? item : x)) : [...prev, item],
+      );
 
-  const duplicate = useCallback((id: string) => {
-    const all = getAll();
-    const found = all.find((x) => x.id === id);
-    if (!found) return;
-    const copy: ContentItem = {
-      ...found,
-      id: crypto.randomUUID(),
-      title: found.title + " (cópia)",
-      status: "pending",
-      createdAt: Date.now(),
-    };
-    setAll([...all, copy]);
-  }, []);
+      const payload = {
+        id: item.id,
+        user_id: user.id,
+        date: item.date,
+        time: item.time,
+        type: item.type,
+        format: item.format,
+        product: item.product,
+        title: item.title,
+        description: item.description,
+        script: item.script,
+        status: item.status,
+      };
 
-  const copyWeek = useCallback((fromIso: string, toIso: string) => {
-    // fromIso/toIso = monday of week (YYYY-MM-DD)
-    const fromDate = new Date(fromIso + "T00:00:00");
-    const toDate = new Date(toIso + "T00:00:00");
-    const diffDays = Math.round(
-      (toDate.getTime() - fromDate.getTime()) / 86400000,
-    );
-    const all = getAll();
-    const weekStart = fromDate.getTime();
-    const weekEnd = weekStart + 7 * 86400000;
-    const inWeek = all.filter((it) => {
-      const d = new Date(it.date + "T00:00:00").getTime();
-      return d >= weekStart && d < weekEnd;
-    });
-    const copies = inWeek.map((it) => {
-      const newDate = new Date(it.date + "T00:00:00");
-      newDate.setDate(newDate.getDate() + diffDays);
-      return {
-        ...it,
+      const { error } = await supabase
+        .from("content_items")
+        .upsert(payload, { onConflict: "id" });
+      if (error) {
+        toast.error("Falha ao salvar — recarregando");
+        reload();
+      }
+    },
+    [user, items, reload],
+  );
+
+  const remove = useCallback(
+    async (id: string) => {
+      setItems((prev) => prev.filter((x) => x.id !== id));
+      const { error } = await supabase.from("content_items").delete().eq("id", id);
+      if (error) {
+        toast.error("Falha ao remover");
+        reload();
+      }
+    },
+    [reload],
+  );
+
+  const duplicate = useCallback(
+    async (id: string) => {
+      const found = items.find((x) => x.id === id);
+      if (!found || !user) return;
+      const copy: ContentItem = {
+        ...found,
         id: crypto.randomUUID(),
-        date: newDate.toISOString().slice(0, 10),
-        status: "pending" as const,
+        title: found.title + " (cópia)",
+        status: "pending",
         createdAt: Date.now(),
       };
-    });
-    setAll([...all, ...copies]);
-    return copies.length;
-  }, []);
+      await upsert(copy);
+    },
+    [items, user, upsert],
+  );
 
-  return { items, upsert, remove, duplicate, copyWeek };
+  const copyWeek = useCallback(
+    (fromIso: string, toIso: string) => {
+      const fromDate = new Date(fromIso + "T00:00:00");
+      const toDate = new Date(toIso + "T00:00:00");
+      const diffDays = Math.round(
+        (toDate.getTime() - fromDate.getTime()) / 86400000,
+      );
+      const weekStart = fromDate.getTime();
+      const weekEnd = weekStart + 7 * 86400000;
+      const inWeek = items.filter((it) => {
+        const d = new Date(it.date + "T00:00:00").getTime();
+        return d >= weekStart && d < weekEnd;
+      });
+      let count = 0;
+      inWeek.forEach((it) => {
+        const newDate = new Date(it.date + "T00:00:00");
+        newDate.setDate(newDate.getDate() + diffDays);
+        const copy: ContentItem = {
+          ...it,
+          id: crypto.randomUUID(),
+          date: newDate.toISOString().slice(0, 10),
+          status: "pending",
+          createdAt: Date.now(),
+        };
+        upsert(copy);
+        count++;
+      });
+      return count;
+    },
+    [items, upsert],
+  );
+
+  return { items, loading, upsert, remove, duplicate, copyWeek };
 }
