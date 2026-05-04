@@ -280,7 +280,7 @@ export function DayPanel({
             <HeaderCell>Horário</HeaderCell>
             <HeaderCell>Título / Hook</HeaderCell>
             <HeaderCell>Formato</HeaderCell>
-            <HeaderCell>Plano</HeaderCell>
+            <HeaderCell>Inspiração</HeaderCell>
             <HeaderCell>Status</HeaderCell>
             <HeaderCell>Redes</HeaderCell>
             <HeaderCell>{""}</HeaderCell>
@@ -352,11 +352,11 @@ export function DayPanel({
                       </Select>
                     </div>
 
-                    {/* Plan */}
+                    {/* Inspiração (links) */}
                     <input
                       value={it.plan}
                       onChange={(e) => updateDraft(slot, { plan: e.target.value })}
-                      placeholder="Plano/Roteiro..."
+                      placeholder="Cole links de inspiração..."
                       className={cn(
                         "px-3 py-2 text-xs bg-transparent outline-none focus:bg-surface focus:ring-1 focus:ring-inset focus:ring-primary/40",
                         filled ? "bg-surface-elevated" : "bg-surface",
@@ -481,32 +481,21 @@ export function DayPanel({
                             className="bg-surface border-border focus-visible:ring-primary/40"
                           />
 
-                          <div className="grid grid-cols-2 gap-3">
-                            <div>
-                              <FieldLabel>Tipo</FieldLabel>
-                              <Select
-                                value={it.type}
-                                onValueChange={(v) => updateDraft(slot, { type: v as any })}
-                              >
-                                <SelectTrigger className="mt-1.5 bg-surface border-border">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {CONTENT_TYPES.map((t) => (
-                                    <SelectItem key={t} value={t}>{t}</SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div>
-                              <FieldLabel>Produto</FieldLabel>
-                              <Input
-                                value={it.product}
-                                onChange={(e) => updateDraft(slot, { product: e.target.value })}
-                                placeholder="Ex.: Mentoria"
-                                className="mt-1.5 bg-surface border-border focus-visible:ring-primary/40"
-                              />
-                            </div>
+                          <div>
+                            <FieldLabel>Tipo</FieldLabel>
+                            <Select
+                              value={it.type}
+                              onValueChange={(v) => updateDraft(slot, { type: v as any })}
+                            >
+                              <SelectTrigger className="mt-1.5 bg-surface border-border">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {CONTENT_TYPES.map((t) => (
+                                  <SelectItem key={t} value={t}>{t}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </div>
 
                           <div>
