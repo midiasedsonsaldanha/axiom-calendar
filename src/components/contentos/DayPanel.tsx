@@ -638,40 +638,47 @@ function InspirationCell({
   const hasLinks = urls.length > 0;
 
   if (!editing && hasLinks) {
+    const primary = urls[0];
+    let host = primary;
+    try {
+      host = new URL(primary).hostname.replace(/^www\./, "");
+    } catch {
+      /* noop */
+    }
+    const extra = urls.length - 1;
     return (
       <div
         className={cn(
-          "px-2 py-1.5 flex flex-wrap items-center gap-1.5 min-h-[40px]",
+          "px-2 py-1.5 flex items-center gap-1.5 min-w-0",
           filled ? "bg-surface-elevated" : "bg-surface",
         )}
       >
-        {urls.map((u, i) => {
-          let host = u;
-          try {
-            host = new URL(u).hostname.replace(/^www\./, "");
-          } catch {
-            /* noop */
-          }
-          return (
-            <a
-              key={i}
-              href={u}
-              target="_blank"
-              rel="noopener noreferrer"
-              title={u}
-              className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-primary/15 hover:bg-primary/25 border border-primary/30 text-primary text-[10px] font-medium max-w-[140px] transition-colors"
-            >
-              <ExternalLink className="w-3 h-3 shrink-0" />
-              <span className="truncate">{host}</span>
-            </a>
-          );
-        })}
+        <a
+          href={primary}
+          target="_blank"
+          rel="noopener noreferrer"
+          title={primary}
+          className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-primary/10 hover:bg-primary/20 border border-primary/25 text-primary text-[10px] font-medium min-w-0 max-w-[160px] transition-colors"
+        >
+          <ExternalLink className="w-3 h-3 shrink-0" />
+          <span className="truncate">{host}</span>
+        </a>
+        {extra > 0 && (
+          <button
+            onClick={() => setEditing(true)}
+            title={urls.slice(1).join("\n")}
+            className="inline-flex items-center justify-center h-6 px-1.5 rounded-md bg-surface border border-border text-[10px] font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors shrink-0"
+          >
+            +{extra}
+          </button>
+        )}
         <button
           onClick={() => setEditing(true)}
-          className="ml-auto text-[10px] text-muted-foreground hover:text-foreground px-1.5 py-1 rounded hover:bg-surface"
+          className="ml-auto text-muted-foreground hover:text-foreground p-1 rounded hover:bg-surface shrink-0"
           title="Editar"
+          aria-label="Editar links"
         >
-          editar
+          <Pencil className="w-3 h-3" />
         </button>
       </div>
     );
