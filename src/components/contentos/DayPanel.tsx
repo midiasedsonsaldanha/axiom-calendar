@@ -192,7 +192,7 @@ export function DayPanel({
   };
 
   const isFilled = (it: ContentItem) =>
-    !!(it.title || it.description || it.plan || it.networks.length > 0);
+    !!(it.title || it.description || it.plan || it.script || it.networks.length > 0);
 
   const persist = (id: string) => {
     const it = drafts[id];
