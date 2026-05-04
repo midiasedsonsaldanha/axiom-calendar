@@ -149,6 +149,42 @@ const Index = () => {
             </div>
           )}
 
+          {/* Calendar selector + Share */}
+          <div className="hidden md:flex items-center gap-2">
+            {calendars.length > 1 && (
+              <Select
+                value={currentOwnerId ?? ""}
+                onValueChange={(v) => setActiveOwnerId(v)}
+              >
+                <SelectTrigger className="h-9 w-[200px] bg-surface border-border text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {calendars.map((c) => (
+                    <SelectItem key={c.ownerId} value={c.ownerId}>
+                      {c.role === "owner" ? "Minha agenda" : c.email}
+                      {c.role === "viewer" && " (leitor)"}
+                      {c.role === "editor" && " (editor)"}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            {isReadOnly && (
+              <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground flex items-center gap-1 px-2">
+                <Eye className="w-3 h-3" /> somente leitura
+              </span>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9"
+              onClick={() => setShareOpen(true)}
+            >
+              <Share2 className="w-4 h-4 mr-1" /> Compartilhar
+            </Button>
+          </div>
+
           {view === "dashboard" && (
             <p className="hidden md:block ml-auto font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
               {items.length} conteúdo{items.length === 1 ? "" : "s"} no total
