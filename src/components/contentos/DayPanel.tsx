@@ -102,6 +102,9 @@ export function DayPanel({
     });
     setDrafts(map);
     setExpandedSlot(null);
+    // mostrar "Extra" automaticamente se já houver conteúdo nele
+    const extra = items.find((it) => it.slot === "Extra");
+    setExtraVisible(!!(extra && (extra.title || extra.description || extra.plan || extra.networks.length > 0)));
   }, [iso, items]);
 
   if (!iso || !date) {
