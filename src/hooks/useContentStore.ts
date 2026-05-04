@@ -143,7 +143,7 @@ export function useContentStore() {
         ...found,
         id: crypto.randomUUID(),
         title: found.title + " (cópia)",
-        status: "pending",
+        status: "none",
         createdAt: Date.now(),
       };
       await upsert(copy);
@@ -172,7 +172,7 @@ export function useContentStore() {
           ...it,
           id: crypto.randomUUID(),
           date: newDate.toISOString().slice(0, 10),
-          status: "pending",
+          status: "none",
           createdAt: Date.now(),
         };
         upsert(copy);

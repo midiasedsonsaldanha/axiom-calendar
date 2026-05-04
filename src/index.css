@@ -40,11 +40,18 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Status colors */
-    --status-pending: 0 0% 55%;
-    --status-production: 28 95% 60%;
-    --status-scheduled: 210 90% 70%;
+    /* Status colors — editorial pipeline */
+    --status-none: 0 0% 55%;
+    --status-develop: 215 85% 65%;
+    --status-inspiration: 48 100% 65%;
+    --status-script: 28 95% 60%;
+    --status-recorded: 350 85% 65%;
+    --status-edited: 280 75% 65%;
+    --status-scheduled: 190 90% 60%;
     --status-posted: 145 65% 50%;
+    /* legacy aliases */
+    --status-pending: var(--status-none);
+    --status-production: var(--status-script);
 
     --border: 0 0% 14%;
     --border-strong: 0 0% 20%;
@@ -189,12 +196,25 @@
   .bg-surface-elevated { background-color: hsl(var(--surface-elevated)); }
   .bg-surface-glass { background-color: hsl(var(--surface-glass)); }
   .border-strong { border-color: hsl(var(--border-strong)); }
-  .text-status-pending { color: hsl(var(--status-pending)); }
-  .text-status-production { color: hsl(var(--status-production)); }
+  .text-status-none { color: hsl(var(--status-none)); }
+  .text-status-develop { color: hsl(var(--status-develop)); }
+  .text-status-inspiration { color: hsl(var(--status-inspiration)); }
+  .text-status-script { color: hsl(var(--status-script)); }
+  .text-status-recorded { color: hsl(var(--status-recorded)); }
+  .text-status-edited { color: hsl(var(--status-edited)); }
   .text-status-scheduled { color: hsl(var(--status-scheduled)); }
   .text-status-posted { color: hsl(var(--status-posted)); }
-  .bg-status-pending { background-color: hsl(var(--status-pending)); }
-  .bg-status-production { background-color: hsl(var(--status-production)); }
+  .bg-status-none { background-color: hsl(var(--status-none)); }
+  .bg-status-develop { background-color: hsl(var(--status-develop)); }
+  .bg-status-inspiration { background-color: hsl(var(--status-inspiration)); }
+  .bg-status-script { background-color: hsl(var(--status-script)); }
+  .bg-status-recorded { background-color: hsl(var(--status-recorded)); }
+  .bg-status-edited { background-color: hsl(var(--status-edited)); }
   .bg-status-scheduled { background-color: hsl(var(--status-scheduled)); }
   .bg-status-posted { background-color: hsl(var(--status-posted)); }
+  /* legacy */
+  .text-status-pending { color: hsl(var(--status-none)); }
+  .text-status-production { color: hsl(var(--status-script)); }
+  .bg-status-pending { background-color: hsl(var(--status-none)); }
+  .bg-status-production { background-color: hsl(var(--status-script)); }
 }

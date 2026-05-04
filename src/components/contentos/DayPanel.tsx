@@ -15,6 +15,7 @@ import {
   CONTENT_TYPES,
   NETWORKS,
   STATUS_META,
+  STATUS_ORDER,
   TIME_SLOTS,
   WEEKDAY_TEMPLATES,
   type ContentItem,
@@ -57,7 +58,7 @@ const empty = (iso: string, slot: string): ContentItem => ({
   title: "",
   description: "",
   script: "",
-  status: "pending",
+  status: "none",
   networks: [],
   createdAt: Date.now(),
 });
@@ -84,6 +85,8 @@ export function DayPanel({
 
   // local drafts: one per slot — keyed by slot
   const [drafts, setDrafts] = useState<Record<string, ContentItem>>({});
+  // remembers the status before "auto-postado" was applied via "todas redes marcadas"
+  const [prevStatus, setPrevStatus] = useState<Record<string, ContentStatus>>({});
   // expanded row for full editor (script/description)
   const [expandedSlot, setExpandedSlot] = useState<string | null>(null);
 
@@ -360,25 +363,25 @@ export function DayPanel({
                     <div className={cn("px-1 py-1 flex items-center", filled ? "bg-surface-elevated" : "bg-surface")}>
                       <Select
                         value={it.status}
-                        onValueChange={(v) => updateDraft(slot, { status: v as ContentStatus })}
+                        onValueChange={(v) => {
+                          updateDraft(slot, { status: v as ContentStatus });
+                          setPrevStatus((p) => {
+                            const { [slot]: _, ...rest } = p;
+                            return rest;
+                          });
+                        }}
                       >
                         <SelectTrigger
                           className={cn(
                             "h-9 border-0 shadow-none text-xs px-2 gap-1.5 focus:ring-1 focus:ring-primary/40 transition-colors",
-                            it.status === "posted"
-                              ? "bg-status-posted/20 text-status-posted hover:bg-status-posted/25"
-                              : it.status === "scheduled"
-                                ? "bg-status-scheduled/15 text-status-scheduled hover:bg-status-scheduled/20"
-                                : it.status === "production"
-                                  ? "bg-status-production/15 text-status-production hover:bg-status-production/20"
-                                  : "bg-transparent text-muted-foreground hover:bg-surface",
+                            meta.bg,
+                            meta.text,
                           )}
                         >
-                          <span className={cn("status-dot", meta.dot)} />
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {(Object.keys(STATUS_META) as ContentStatus[]).map((s) => (
+                          {STATUS_ORDER.map((s) => (
                             <SelectItem key={s} value={s}>
                               <span className="flex items-center gap-2">
                                 <span className={cn("status-dot", STATUS_META[s].dot)} />
@@ -389,8 +392,6 @@ export function DayPanel({
                         </SelectContent>
                       </Select>
                     </div>
-
-                    {/* Networks */}
                     <div
                       className={cn(
                         "px-2 py-2 flex flex-wrap gap-1 items-center",
@@ -403,13 +404,34 @@ export function DayPanel({
                           <button
                             key={net.id}
                             type="button"
-                            onClick={() =>
-                              updateDraft(slot, {
-                                networks: active
-                                  ? it.networks.filter((n) => n !== net.id)
-                                  : [...it.networks, net.id],
-                              })
-                            }
+                            onClick={() => {
+                              const nextNetworks = active
+                                ? it.networks.filter((n) => n !== net.id)
+                                : [...it.networks, net.id];
+                              const total = NETWORKS.length;
+                              const wasAll = it.networks.length === total;
+                              const isAll = nextNetworks.length === total;
+                              const patch: Partial<ContentItem> = { networks: nextNetworks };
+
+                              if (!wasAll && isAll) {
+                                // todas marcadas → vira "Postado", lembrando o status anterior
+                                setPrevStatus((p) => ({ ...p, [slot]: it.status }));
+                                patch.status = "posted";
+                              } else if (wasAll && !isAll) {
+                                // saiu do "todas marcadas" → volta pro status anterior
+                                const restore = prevStatus[slot];
+                                if (restore) {
+                                  patch.status = restore;
+                                  setPrevStatus((p) => {
+                                    const { [slot]: _, ...rest } = p;
+                                    return rest;
+                                  });
+                                } else if (it.status === "posted") {
+                                  patch.status = "none";
+                                }
+                              }
+                              updateDraft(slot, patch);
+                            }}
                             title={net.full}
                             className={cn(
                               "px-1.5 h-5 rounded text-[9px] font-mono font-semibold border transition-all",

@@ -26,7 +26,7 @@ export type Database = {
           product: string
           script: string
           slot: string
-          status: Database["public"]["Enums"]["content_status"]
+          status: string
           time: string
           title: string
           type: string
@@ -44,7 +44,7 @@ export type Database = {
           product?: string
           script?: string
           slot?: string
-          status?: Database["public"]["Enums"]["content_status"]
+          status?: string
           time?: string
           title?: string
           type?: string
@@ -62,7 +62,7 @@ export type Database = {
           product?: string
           script?: string
           slot?: string
-          status?: Database["public"]["Enums"]["content_status"]
+          status?: string
           time?: string
           title?: string
           type?: string
@@ -79,7 +79,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      content_status: "pending" | "production" | "scheduled" | "posted"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
@@ -206,8 +206,6 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {
-      content_status: ["pending", "production", "scheduled", "posted"],
-    },
+    Enums: {},
   },
 } as const
