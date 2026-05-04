@@ -3,6 +3,7 @@ import { AppSidebar, type AppView } from "@/components/contentos/AppSidebar";
 import { CalendarView } from "@/components/contentos/CalendarView";
 import { DayPanel } from "@/components/contentos/DayPanel";
 import { Dashboard } from "@/components/contentos/Dashboard";
+import { InsightsView } from "@/components/contentos/InsightsView";
 import { useContentStore } from "@/hooks/useContentStore";
 import {
   CONTENT_TYPES,
@@ -216,6 +217,8 @@ const Index = () => {
         <main className="flex-1 p-4 md:p-8 max-w-[1400px] w-full mx-auto">
           {view === "dashboard" ? (
             <Dashboard items={items} onJumpCalendar={() => setView("calendar")} />
+          ) : view === "insights" ? (
+            <InsightsView />
           ) : (
             <CalendarView
               items={filtered}

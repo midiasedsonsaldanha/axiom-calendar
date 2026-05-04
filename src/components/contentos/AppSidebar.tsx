@@ -1,9 +1,9 @@
-import { LayoutDashboard, CalendarDays, Sparkles, LogOut } from "lucide-react";
+import { LayoutDashboard, CalendarDays, Sparkles, LogOut, BarChart3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
-export type AppView = "dashboard" | "calendar";
+export type AppView = "dashboard" | "calendar" | "insights";
 
 interface AppSidebarProps {
   view: AppView;
@@ -13,6 +13,7 @@ interface AppSidebarProps {
 const items: { id: AppView; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "dashboard", label: "Visão geral", icon: LayoutDashboard },
   { id: "calendar", label: "Calendário", icon: CalendarDays },
+  { id: "insights", label: "Insights", icon: BarChart3 },
 ];
 
 export function AppSidebar({ view, onChange }: AppSidebarProps) {
