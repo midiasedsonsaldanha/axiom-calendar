@@ -1,4 +1,15 @@
-export type ContentStatus = "pending" | "production" | "scheduled" | "posted";
+export type ContentStatus =
+  | "none"
+  | "develop"
+  | "inspiration"
+  | "script"
+  | "recorded"
+  | "edited"
+  | "scheduled"
+  | "posted"
+  // legacy
+  | "pending"
+  | "production";
 
 export type ContentType =
   | "Reels"
