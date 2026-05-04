@@ -12,20 +12,21 @@ export type ContentStatus =
   | "production";
 
 export type ContentType =
-  | "Reels"
-  | "Story"
-  | "Carrossel"
-  | "Live"
-  | "Post"
-  | "YouTube";
+  | "Fornecedores"
+  | "Produtos"
+  | "Ferramentas"
+  | "Frase"
+  | "React"
+  | "Monte sua Loja"
+  | "Família"
+  | "tbt"
+  | "Notícia"
+  | "Expedy"
+  | "Avantpro"
+  | "UpSeller"
+  | "Shopee Oficial";
 
-export type ContentFormat =
-  | "Venda"
-  | "Educativo"
-  | "Prova social"
-  | "Bastidor"
-  | "Engajamento"
-  | "Lançamento";
+export type ContentFormat = "Reels" | "Post";
 
 export interface ContentItem {
   id: string;
@@ -45,22 +46,22 @@ export interface ContentItem {
 }
 
 export const CONTENT_TYPES: ContentType[] = [
-  "Reels",
-  "Story",
-  "Carrossel",
-  "Live",
-  "Post",
-  "YouTube",
+  "Fornecedores",
+  "Produtos",
+  "Ferramentas",
+  "Frase",
+  "React",
+  "Monte sua Loja",
+  "Família",
+  "tbt",
+  "Notícia",
+  "Expedy",
+  "Avantpro",
+  "UpSeller",
+  "Shopee Oficial",
 ];
 
-export const CONTENT_FORMATS: ContentFormat[] = [
-  "Venda",
-  "Educativo",
-  "Prova social",
-  "Bastidor",
-  "Engajamento",
-  "Lançamento",
-];
+export const CONTENT_FORMATS: ContentFormat[] = ["Reels", "Post"];
 
 /** Slots fixos da grade diária (estilo planilha). */
 export const TIME_SLOTS: string[] = [
@@ -127,11 +128,11 @@ export const WEEKDAY_TEMPLATES: Record<
   number,
   { label: string; type: ContentType; format: ContentFormat; suggestion: string }
 > = {
-  0: { label: "Bastidor / Leve", type: "Story", format: "Bastidor", suggestion: "Mostre o bastidor da semana, rotina ou reflexão." },
-  1: { label: "Educativo", type: "Reels", format: "Educativo", suggestion: "Ensine algo prático sobre o seu nicho." },
-  2: { label: "Produto / Oferta", type: "Reels", format: "Venda", suggestion: "Apresente o produto principal com gatilho claro." },
-  3: { label: "Engajamento", type: "Carrossel", format: "Engajamento", suggestion: "Pergunta, enquete ou debate com a audiência." },
-  4: { label: "Dica de valor", type: "Reels", format: "Educativo", suggestion: "Tip rápido aplicável imediatamente." },
-  5: { label: "Prova social", type: "Carrossel", format: "Prova social", suggestion: "Resultados, depoimentos ou cases." },
-  6: { label: "CTA / Vendas", type: "Story", format: "Venda", suggestion: "Sequência de stories levando à oferta." },
+  0: { label: "Família", type: "Família", format: "Reels", suggestion: "Conteúdo leve, mostrando rotina e bastidores." },
+  1: { label: "Ferramentas", type: "Ferramentas", format: "Reels", suggestion: "Apresente uma ferramenta útil para lojistas." },
+  2: { label: "Produtos", type: "Produtos", format: "Reels", suggestion: "Destaque um produto vencedor com gatilho claro." },
+  3: { label: "Fornecedores", type: "Fornecedores", format: "Post", suggestion: "Mostre fornecedores confiáveis e curadoria." },
+  4: { label: "Frase", type: "Frase", format: "Post", suggestion: "Frase de impacto / mindset para empreendedores." },
+  5: { label: "React", type: "React", format: "Reels", suggestion: "React de tendência, notícia ou vídeo viral." },
+  6: { label: "Monte sua Loja", type: "Monte sua Loja", format: "Reels", suggestion: "Passo a passo para montar/escalar a loja." },
 };

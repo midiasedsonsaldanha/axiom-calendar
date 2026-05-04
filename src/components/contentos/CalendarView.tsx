@@ -147,7 +147,7 @@ export function CalendarView({ items, onPickDay, onCopyWeek }: CalendarViewProps
           const isOther = d.getMonth() !== month;
           const isToday = isSameDay(d, today);
           const list = byDate.get(iso) ?? [];
-          const hasSales = list.some((it) => it.format === "Venda");
+          const hasSales = false;
           const requiredSlots = TIME_SLOTS.filter((s) => s !== "Extra");
           const isComplete =
             list.length > 0 &&
