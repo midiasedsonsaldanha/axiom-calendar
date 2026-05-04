@@ -649,23 +649,34 @@ export function DayPanel({
                                     s.replace(/[&<>]/g, (c) =>
                                       c === "&" ? "&amp;" : c === "<" ? "&lt;" : "&gt;",
                                     );
+                                  const sec = parseScript(it.script);
                                   w.document.write(`<!doctype html><html><head><meta charset="utf-8"/><title>Roteiro — ${esc(it.title || "Sem título")}</title>
 <style>
-  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:32px;color:#111;line-height:1.55;max-width:780px;margin:0 auto;}
-  h1{font-size:22px;margin:0 0 4px;}
-  .meta{color:#666;font-size:12px;margin-bottom:24px;}
-  h2{font-size:13px;text-transform:uppercase;letter-spacing:.15em;color:#666;margin:24px 0 8px;border-bottom:1px solid #eee;padding-bottom:4px;}
-  pre{white-space:pre-wrap;word-wrap:break-word;font-family:inherit;font-size:14px;margin:0;}
-  .imgs{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:8px;}
+  @page{size:A4;margin:14mm;}
+  *{box-sizing:border-box;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#111;line-height:1.45;margin:0;}
+  h1{font-size:20px;margin:0 0 4px;}
+  .meta{color:#666;font-size:11px;margin-bottom:14px;}
+  .sections{display:flex;flex-direction:column;gap:10px;}
+  .section{border:1.5px solid #111;border-radius:8px;padding:10px 12px;page-break-inside:avoid;}
+  .section h2{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#fff;background:#111;display:inline-block;padding:3px 8px;border-radius:4px;margin:0 0 8px;}
+  .section .body{font-size:12.5px;}
+  .section .body :first-child{margin-top:0;}
+  .section .body :last-child{margin-bottom:0;}
+  .imgs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px;}
   .imgs img{width:100%;height:auto;border-radius:6px;border:1px solid #eee;}
   @media print{body{padding:0;}}
 </style>
 </head><body>
 <h1>${esc(it.title || "Sem título")}</h1>
 <div class="meta">${esc(it.date)} · ${esc(it.time)} · ${esc(it.type)} · ${esc(it.format)}</div>
-${it.description ? `<h2>Descrição</h2><pre>${esc(it.description)}</pre>` : ""}
-${it.script ? `<h2>Roteiro</h2><div>${it.script}</div>` : ""}
-${imgs.length ? `<h2>Imagens</h2><div class="imgs">${imgs.map((u) => `<img src="${u}"/>`).join("")}</div>` : ""}
+${it.description ? `<div class="meta"><strong>Descrição:</strong> ${esc(it.description)}</div>` : ""}
+<div class="sections">
+  <div class="section"><h2>Hook</h2><div class="body">${sec.hook || "<em style='color:#999'>—</em>"}</div></div>
+  <div class="section"><h2>Desenvolvimento</h2><div class="body">${sec.dev || "<em style='color:#999'>—</em>"}</div></div>
+  <div class="section"><h2>CTA</h2><div class="body">${sec.cta || "<em style='color:#999'>—</em>"}</div></div>
+</div>
+${imgs.length ? `<h2 style="font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#666;margin:14px 0 6px;">Imagens</h2><div class="imgs">${imgs.map((u) => `<img src="${u}"/>`).join("")}</div>` : ""}
 <script>window.onload=()=>setTimeout(()=>window.print(),300);<\/script>
 </body></html>`);
                                   w.document.close();
@@ -880,6 +891,29 @@ function InspirationCell({
   );
 }
 
+export type ScriptSections = { hook: string; dev: string; cta: string };
+
+export function parseScript(value: string): ScriptSections {
+  if (!value) return { hook: "", dev: "", cta: "" };
+  try {
+    const parsed = JSON.parse(value);
+    if (parsed && typeof parsed === "object" && "hook" in parsed) {
+      return {
+        hook: parsed.hook || "",
+        dev: parsed.dev || "",
+        cta: parsed.cta || "",
+      };
+    }
+  } catch {
+    /* legacy plain html */
+  }
+  return { hook: "", dev: value, cta: "" };
+}
+
+export function stringifyScript(s: ScriptSections): string {
+  return JSON.stringify(s);
+}
+
 function RichEditor({
   value,
   onChange,
@@ -887,9 +921,52 @@ function RichEditor({
   value: string;
   onChange: (html: string) => void;
 }) {
+  const sections = parseScript(value);
+  const update = (key: keyof ScriptSections, html: string) => {
+    onChange(stringifyScript({ ...sections, [key]: html }));
+  };
+  return (
+    <div className="space-y-3">
+      <SectionEditor
+        label="HOOK"
+        placeholder="Frase de impacto inicial..."
+        value={sections.hook}
+        onChange={(h) => update("hook", h)}
+        minHeight={90}
+      />
+      <SectionEditor
+        label="DESENVOLVIMENTO"
+        placeholder="Conteúdo principal, argumentos, exemplos..."
+        value={sections.dev}
+        onChange={(h) => update("dev", h)}
+        minHeight={180}
+      />
+      <SectionEditor
+        label="CTA"
+        placeholder="Chamada para ação final..."
+        value={sections.cta}
+        onChange={(h) => update("cta", h)}
+        minHeight={90}
+      />
+    </div>
+  );
+}
+
+function SectionEditor({
+  label,
+  placeholder,
+  value,
+  onChange,
+  minHeight,
+}: {
+  label: string;
+  placeholder: string;
+  value: string;
+  onChange: (html: string) => void;
+  minHeight: number;
+}) {
   const ref = useRef<HTMLDivElement>(null);
 
-  // initialize / sync only when external value changes and differs from DOM
   useEffect(() => {
     if (ref.current && ref.current.innerHTML !== (value || "")) {
       ref.current.innerHTML = value || "";
@@ -926,54 +1003,59 @@ function RichEditor({
   const [showColors, setShowColors] = useState(false);
 
   return (
-    <div className="space-y-2">
-      <div className="flex flex-wrap items-center gap-1 p-1 rounded-md border border-border bg-surface">
-        {tools.map(({ icon: Icon, title, cmd, arg }) => (
-          <button
-            key={title}
-            type="button"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              exec(cmd, arg);
-            }}
-            title={title}
-            className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-surface-elevated transition-colors"
-          >
-            <Icon className="w-3.5 h-3.5" />
-          </button>
-        ))}
-        <div className="relative">
-          <button
-            type="button"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              setShowColors((v) => !v);
-            }}
-            title="Cor do texto"
-            className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-surface-elevated transition-colors flex items-center gap-1"
-          >
-            <Palette className="w-3.5 h-3.5" />
-          </button>
-          {showColors && (
-            <div className="absolute z-30 top-full left-0 mt-1 p-2 rounded-md border border-border bg-popover shadow-lg grid grid-cols-5 gap-1.5 w-[160px]">
-              {COLORS.map((c) => (
-                <button
-                  key={c.value}
-                  type="button"
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    exec("foreColor", c.value);
-                    setShowColors(false);
-                  }}
-                  title={c.name}
-                  className="w-6 h-6 rounded border border-border hover:scale-110 transition-transform"
-                  style={{ background: c.value === "inherit" ? "transparent" : c.value }}
-                >
-                  {c.value === "inherit" && <span className="text-[8px] text-muted-foreground">A</span>}
-                </button>
-              ))}
-            </div>
-          )}
+    <div className="rounded-md border border-border bg-surface overflow-hidden">
+      <div className="flex items-center justify-between gap-2 px-2 py-1 border-b border-border bg-surface-elevated">
+        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-primary font-semibold">
+          {label}
+        </span>
+        <div className="flex flex-wrap items-center gap-0.5">
+          {tools.map(({ icon: Icon, title, cmd, arg }) => (
+            <button
+              key={title}
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                exec(cmd, arg);
+              }}
+              title={title}
+              className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+            >
+              <Icon className="w-3 h-3" />
+            </button>
+          ))}
+          <div className="relative">
+            <button
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                setShowColors((v) => !v);
+              }}
+              title="Cor do texto"
+              className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+            >
+              <Palette className="w-3 h-3" />
+            </button>
+            {showColors && (
+              <div className="absolute z-30 top-full right-0 mt-1 p-2 rounded-md border border-border bg-popover shadow-lg grid grid-cols-5 gap-1.5 w-[160px]">
+                {COLORS.map((c) => (
+                  <button
+                    key={c.value}
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      exec("foreColor", c.value);
+                      setShowColors(false);
+                    }}
+                    title={c.name}
+                    className="w-6 h-6 rounded border border-border hover:scale-110 transition-transform"
+                    style={{ background: c.value === "inherit" ? "transparent" : c.value }}
+                  >
+                    {c.value === "inherit" && <span className="text-[8px] text-muted-foreground">A</span>}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
       <div
@@ -981,10 +1063,11 @@ function RichEditor({
         contentEditable
         suppressContentEditableWarning
         onInput={(e) => onChange((e.target as HTMLDivElement).innerHTML)}
-        data-placeholder="Hook · desenvolvimento · CTA..."
+        data-placeholder={placeholder}
+        style={{ minHeight }}
         className={cn(
-          "min-h-[260px] rounded-md border border-border bg-white text-neutral-900 px-3 py-2 text-xs leading-relaxed",
-          "focus:outline-none focus:ring-1 focus:ring-primary/40",
+          "bg-white text-neutral-900 px-3 py-2 text-xs leading-relaxed",
+          "focus:outline-none focus:ring-1 focus:ring-inset focus:ring-primary/40",
           "[&_h3]:text-base [&_h3]:font-semibold [&_h3]:my-1",
           "[&_blockquote]:border-l-2 [&_blockquote]:border-primary/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-neutral-600",
           "[&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5",
