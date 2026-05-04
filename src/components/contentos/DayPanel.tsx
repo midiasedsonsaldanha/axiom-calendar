@@ -781,6 +781,18 @@ ${imgs.length ? `<h2>Imagens</h2><div class="imgs">${imgs.map((u) => `<img src="
           </p>
         </div>
       </SheetContent>
+
+      <Dialog open={!!previewImage} onOpenChange={(o) => !o && setPreviewImage(null)}>
+        <DialogContent className="max-w-5xl p-2 bg-background border-border">
+          {previewImage && (
+            <img
+              src={previewImage}
+              alt="Pré-visualização"
+              className="w-full h-auto max-h-[85vh] object-contain rounded-md"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </Sheet>
   );
 }
