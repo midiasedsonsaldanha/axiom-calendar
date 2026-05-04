@@ -64,7 +64,7 @@ export function useContentStore(ownerId?: string) {
     }
     setItems((data as DbRow[]).map(fromRow));
     setLoading(false);
-  }, [user]);
+  }, [user, effectiveOwnerId]);
 
   useEffect(() => {
     setLoading(true);
@@ -75,7 +75,7 @@ export function useContentStore(ownerId?: string) {
   useEffect(() => {
     if (!user) return;
     const channel = supabase
-      .channel("content_items_changes")
+      .channel(`content_items_changes_${effectiveOwnerId ?? "none"}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "content_items" },
@@ -85,11 +85,11 @@ export function useContentStore(ownerId?: string) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, reload]);
+  }, [user, effectiveOwnerId, reload]);
 
   const upsert = useCallback(
     async (item: ContentItem) => {
-      if (!user) return;
+      if (!user || !effectiveOwnerId) return;
       const exists = items.some((x) => x.id === item.id);
 
       // optimistic
@@ -99,7 +99,7 @@ export function useContentStore(ownerId?: string) {
 
       const payload = {
         id: item.id,
-        user_id: user.id,
+        user_id: effectiveOwnerId,
         date: item.date,
         time: item.time,
         slot: item.slot,
