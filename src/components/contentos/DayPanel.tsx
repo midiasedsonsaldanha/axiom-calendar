@@ -57,7 +57,7 @@ const empty = (iso: string, slot: string): ContentItem => ({
   title: "",
   description: "",
   script: "",
-  status: "pending",
+  status: "none",
   networks: [],
   createdAt: Date.now(),
 });
