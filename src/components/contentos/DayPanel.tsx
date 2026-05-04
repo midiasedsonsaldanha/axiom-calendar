@@ -128,15 +128,15 @@ export function DayPanel({
     );
   }
 
-  const updateDraft = (slot: string, patch: Partial<ContentItem>) => {
-    setDrafts((prev) => ({ ...prev, [slot]: { ...prev[slot], ...patch } }));
+  const updateDraft = (id: string, patch: Partial<ContentItem>) => {
+    setDrafts((prev) => ({ ...prev, [id]: { ...prev[id], ...patch } }));
   };
 
   const isFilled = (it: ContentItem) =>
     !!(it.title || it.description || it.plan || it.networks.length > 0);
 
-  const persist = (slot: string) => {
-    const it = drafts[slot];
+  const persist = (id: string) => {
+    const it = drafts[id];
     if (!it) return;
     const exists = items.some((x) => x.id === it.id);
     if (!exists && !isFilled(it)) return; // skip empty new rows
@@ -150,19 +150,34 @@ export function DayPanel({
     });
   };
 
-  const handleClearSlot = (slot: string) => {
-    const it = drafts[slot];
+  const handleRemoveRow = (id: string) => {
+    const it = drafts[id];
     if (!it) return;
     const exists = items.some((x) => x.id === it.id);
     if (exists) {
       remove(it.id);
       toast("Bloco removido");
     }
-    setDrafts((prev) => ({ ...prev, [slot]: empty(iso, slot) }));
+    setDrafts((prev) => {
+      const { [id]: _, ...rest } = prev;
+      return rest;
+    });
+    setRowOrder((prev) => prev.filter((x) => x !== id));
+    setExpandedId((cur) => (cur === id ? null : cur));
   };
 
-  const handleDuplicate = (slot: string) => {
-    const it = drafts[slot];
+  const handleAddRow = () => {
+    const used = Object.values(drafts).map((d) => d.time);
+    const next =
+      TIME_SLOTS.filter((s) => s !== "Extra").find((s) => !used.includes(s)) ?? "";
+    const it = empty(iso, next);
+    setDrafts((prev) => ({ ...prev, [it.id]: it }));
+    setRowOrder((prev) => [...prev, it.id]);
+    setExpandedId(it.id);
+  };
+
+  const handleDuplicate = (id: string) => {
+    const it = drafts[id];
     if (!it || !items.some((x) => x.id === it.id)) {
       toast.error("Salve o bloco antes de duplicar");
       return;
@@ -175,15 +190,15 @@ export function DayPanel({
     if (!template) return;
     setDrafts((prev) => {
       const next = { ...prev };
-      // apply to first empty slot or the 18:00 prime slot
-      const target =
-        TIME_SLOTS.find((s) => !isFilled(next[s])) ?? "18:00";
-      next[target] = {
-        ...next[target],
+      const targetId =
+        rowOrder.find((id) => !isFilled(next[id])) ?? rowOrder[0];
+      if (!targetId) return prev;
+      next[targetId] = {
+        ...next[targetId],
         type: template.type,
         format: template.format,
-        title: next[target].title || template.label,
-        description: next[target].description || template.suggestion,
+        title: next[targetId].title || template.label,
+        description: next[targetId].description || template.suggestion,
       };
       return next;
     });
