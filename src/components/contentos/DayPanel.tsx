@@ -23,17 +23,24 @@ import {
 } from "@/types/content";
 import { fromIso, WEEKDAYS_FULL } from "@/lib/date";
 import {
+  Bold,
   ChevronLeft,
   ChevronRight,
   Copy,
   ExternalLink,
   Flame,
+  Heading,
   ImagePlus,
+  Italic,
+  List,
+  ListOrdered,
   Pencil,
   Plus,
   Printer,
+  Quote,
   Sparkles,
   Trash2,
+  Underline,
   Wand2,
   X,
 } from "lucide-react";
