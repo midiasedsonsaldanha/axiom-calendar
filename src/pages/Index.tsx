@@ -31,11 +31,20 @@ const Index = () => {
   const [pickedDay, setPickedDay] = useState<string | null>(null);
   const [openPanel, setOpenPanel] = useState(false);
 
+  const [shareOpen, setShareOpen] = useState(false);
+
+  const { user } = useAuth();
+  const { calendars } = useCalendarShares();
+  const [activeOwnerId, setActiveOwnerId] = useState<string | undefined>(undefined);
+  const currentOwnerId = activeOwnerId ?? user?.id;
+  const activeCalendar = calendars.find((c) => c.ownerId === currentOwnerId);
+  const isReadOnly = !!activeCalendar && activeCalendar.role === "viewer";
+
   const [filterStatus, setFilterStatus] = useState<"all" | ContentStatus>("all");
   const [filterType, setFilterType] = useState<"all" | ContentType>("all");
   const [search, setSearch] = useState("");
 
-  const { items, upsert, remove, duplicate, copyWeek } = useContentStore();
+  const { items, upsert, remove, duplicate, copyWeek } = useContentStore(currentOwnerId);
 
   const filtered = useMemo(() => {
     return items.filter((it) => {
