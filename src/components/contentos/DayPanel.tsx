@@ -340,7 +340,7 @@ export function DayPanel({
                         value={it.time}
                         onChange={(e) => updateDraft(id, { time: e.target.value, slot: e.target.value })}
                         className={cn(
-                          "w-full h-full px-2 py-2.5 bg-transparent outline-none text-center font-mono text-xs",
+                          "w-full h-full px-2 py-2.5 bg-transparent outline-none text-center font-mono text-xs [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-80 [&::-webkit-calendar-picker-indicator]:cursor-pointer",
                           "focus:ring-1 focus:ring-inset focus:ring-primary/40",
                           filled ? "text-foreground" : "text-muted-foreground",
                         )}
