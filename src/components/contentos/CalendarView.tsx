@@ -148,6 +148,12 @@ export function CalendarView({ items, onPickDay, onCopyWeek }: CalendarViewProps
           const isToday = isSameDay(d, today);
           const list = byDate.get(iso) ?? [];
           const hasSales = list.some((it) => it.format === "Venda");
+          const requiredSlots = TIME_SLOTS.filter((s) => s !== "Extra");
+          const isComplete =
+            list.length > 0 &&
+            requiredSlots.every((s) =>
+              list.some((it) => it.slot === s && it.status === "posted"),
+            );
 
           // intensity bar 0..1
           const intensity = Math.min(list.length / 5, 1);
@@ -161,6 +167,7 @@ export function CalendarView({ items, onPickDay, onCopyWeek }: CalendarViewProps
                 isOther && "is-other-month",
                 isToday && "is-today",
                 hasSales && "is-focus-sales",
+                isComplete && "is-complete",
               )}
             >
               <div className="flex items-start justify-between mb-1.5">
