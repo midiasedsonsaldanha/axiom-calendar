@@ -2,95 +2,83 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* ContentOS — Premium dark design system
+   All colors MUST be HSL.
 */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Core canvas */
+    --background: 0 0% 4%;
+    --foreground: 0 0% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --surface: 0 0% 7%;
+    --surface-elevated: 0 0% 9%;
+    --surface-glass: 0 0% 11%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 98%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Brand orange */
+    --primary: 22 100% 55%;
+    --primary-foreground: 0 0% 5%;
+    --primary-glow: 28 100% 62%;
+    --primary-deep: 18 95% 45%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 95%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --muted: 0 0% 11%;
+    --muted-foreground: 0 0% 60%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --accent: 22 100% 55%;
+    --accent-foreground: 0 0% 5%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
 
-    --radius: 0.5rem;
+    /* Status colors */
+    --status-pending: 0 0% 55%;
+    --status-production: 28 95% 60%;
+    --status-scheduled: 210 90% 70%;
+    --status-posted: 145 65% 50%;
 
-    --sidebar-background: 0 0% 98%;
+    --border: 0 0% 14%;
+    --border-strong: 0 0% 20%;
+    --input: 0 0% 12%;
+    --ring: 22 100% 55%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    --radius: 0.875rem;
 
-    --sidebar-primary: 240 5.9% 10%;
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(22 100% 55%) 0%, hsl(28 100% 62%) 100%);
+    --gradient-surface: linear-gradient(180deg, hsl(0 0% 8%) 0%, hsl(0 0% 5%) 100%);
+    --gradient-glow: radial-gradient(600px circle at var(--mx, 50%) var(--my, 0%), hsl(22 100% 55% / 0.15), transparent 40%);
+    --gradient-orange-soft: linear-gradient(135deg, hsl(22 100% 55% / 0.12), hsl(28 100% 62% / 0.04));
 
-    --sidebar-primary-foreground: 0 0% 98%;
+    /* Shadows + glow */
+    --shadow-elegant: 0 10px 40px -12px hsl(0 0% 0% / 0.6);
+    --shadow-glow: 0 0 0 1px hsl(22 100% 55% / 0.35), 0 8px 30px -6px hsl(22 100% 55% / 0.35);
+    --shadow-glow-soft: 0 0 24px -6px hsl(22 100% 55% / 0.4);
+    --shadow-card: 0 1px 0 0 hsl(0 0% 100% / 0.04) inset, 0 8px 24px -12px hsl(0 0% 0% / 0.6);
 
-    --sidebar-accent: 240 4.8% 95.9%;
+    --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
 
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 0 0% 5%;
+    --sidebar-foreground: 0 0% 80%;
+    --sidebar-primary: 22 100% 55%;
+    --sidebar-primary-foreground: 0 0% 5%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 12%;
+    --sidebar-ring: 22 100% 55%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Same — app is dark by default */
   }
 }
 
@@ -99,7 +87,114 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
-  body {
-    @apply bg-background text-foreground;
+  html, body, #root {
+    @apply h-full;
   }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-feature-settings: 'cv11', 'ss01';
+    background-image:
+      radial-gradient(1200px circle at 0% 0%, hsl(22 100% 55% / 0.05), transparent 40%),
+      radial-gradient(900px circle at 100% 100%, hsl(28 100% 62% / 0.04), transparent 40%);
+    background-attachment: fixed;
+  }
+
+  h1, h2, h3, h4, h5 {
+    font-family: 'Space Grotesk', system-i, sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  .font-display {
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: -0.025em;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(0 0% 18%);
+    border-radius: 8px;
+    border: 2px solid hsl(var(--background));
+  }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(22 100% 55% / 0.6); }
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-surface/80 backdrop-blur-xl border border-border;
+    box-shadow: var(--shadow-card);
+  }
+
+  .glow-ring {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .glow-soft {
+    box-shadow: var(--shadow-glow-soft);
+  }
+
+  .gradient-text {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(hsl(0 0% 100% / 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(0 0% 100% / 0.03) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  .day-card {
+    @apply relative rounded-xl border border-border bg-surface/60 p-2.5 transition-all duration-200 cursor-pointer overflow-hidden;
+    min-height: 110px;
+  }
+  .day-card:hover {
+    @apply border-primary/40 bg-surface;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px -12px hsl(22 100% 55% / 0.25);
+  }
+  .day-card.is-today {
+    @apply border-primary/60;
+    box-shadow: inset 0 0 0 1px hsl(22 100% 55% / 0.4), 0 8px 24px -8px hsl(22 100% 55% / 0.35);
+  }
+  .day-card.is-other-month { opacity: 0.35; }
+  .day-card.is-focus-sales::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 60%, hsl(22 100% 55% / 0.12));
+    pointer-events: none;
+  }
+
+  .status-dot {
+    @apply inline-block w-2 h-2 rounded-full;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-medium uppercase tracking-wider border border-border bg-surface-elevated;
+  }
+}
+
+@layer utilities {
+  .bg-surface { background-color: hsl(var(--surface)); }
+  .bg-surface-elevated { background-color: hsl(var(--surface-elevated)); }
+  .bg-surface-glass { background-color: hsl(var(--surface-glass)); }
+  .border-strong { border-color: hsl(var(--border-strong)); }
+  .text-status-pending { color: hsl(var(--status-pending)); }
+  .text-status-production { color: hsl(var(--status-production)); }
+  .text-status-scheduled { color: hsl(var(--status-scheduled)); }
+  .text-status-posted { color: hsl(var(--status-posted)); }
+  .bg-status-pending { background-color: hsl(var(--status-pending)); }
+  .bg-status-production { background-color: hsl(var(--status-production)); }
+  .bg-status-scheduled { background-color: hsl(var(--status-scheduled)); }
+  .bg-status-posted { background-color: hsl(var(--status-posted)); }
 }
