@@ -442,6 +442,7 @@ export function DayPanel({
                     <div className={cn("px-1 py-1 flex items-center", filled ? "bg-surface-elevated" : "bg-surface")}>
                       <Select
                         value={it.format}
+                        disabled={readOnly}
                         onValueChange={(v) => updateDraft(id, { format: v as any })}
                       >
                         <SelectTrigger className="h-9 border-0 bg-transparent shadow-none text-xs px-2 hover:bg-surface focus:ring-1 focus:ring-primary/40">
@@ -467,6 +468,7 @@ export function DayPanel({
                     <div className={cn("px-1 py-1 flex items-center", filled ? "bg-surface-elevated" : "bg-surface")}>
                       <Select
                         value={it.status}
+                        disabled={readOnly}
                         onValueChange={(v) => {
                           updateDraft(id, { status: v as ContentStatus });
                           setPrevStatus((p) => {
@@ -508,6 +510,7 @@ export function DayPanel({
                           <button
                             key={net.id}
                             type="button"
+                            disabled={readOnly}
                             onClick={() => {
                               const nextNetworks = active
                                 ? it.networks.filter((n) => n !== net.id)
@@ -542,6 +545,7 @@ export function DayPanel({
                               active
                                 ? "bg-primary text-primary-foreground border-primary shadow-glow-soft"
                                 : "bg-transparent text-muted-foreground border-border hover:border-primary/40 hover:text-foreground",
+                              readOnly && "cursor-default hover:border-border hover:text-muted-foreground",
                             )}
                           >
                             {net.label}
