@@ -9,13 +9,16 @@ interface DbRow {
   user_id: string;
   date: string;
   time: string;
+  slot: string;
   type: string;
   format: string;
   product: string;
+  plan: string;
   title: string;
   description: string;
   script: string;
   status: ContentStatus;
+  networks: string[];
   created_at: string;
   updated_at: string;
 }
@@ -24,13 +27,16 @@ const fromRow = (r: DbRow): ContentItem => ({
   id: r.id,
   date: r.date,
   time: r.time,
+  slot: r.slot ?? "",
   type: r.type as ContentItem["type"],
   format: r.format as ContentItem["format"],
   product: r.product,
+  plan: r.plan ?? "",
   title: r.title,
   description: r.description,
   script: r.script,
   status: r.status,
+  networks: r.networks ?? [],
   createdAt: new Date(r.created_at).getTime(),
 });
 
