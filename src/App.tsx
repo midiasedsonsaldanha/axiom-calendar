@@ -25,7 +25,9 @@ const App = () => (
               path="/"
               element={
                 <ProtectedRoute>
-                  <Index />
+                  <ErrorBoundary>
+                    <Index />
+                  </ErrorBoundary>
                 </ProtectedRoute>
               }
             />
