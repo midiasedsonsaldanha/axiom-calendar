@@ -1,0 +1,1 @@
+DELETE FROM public.content_items WHERE id IN ('9c01c20d-c46d-4f35-8bb0-46aad2cff51e','baf6aa04-b3a7-471f-99b4-055461631e6c');
