@@ -100,13 +100,16 @@ export function useContentStore() {
         user_id: user.id,
         date: item.date,
         time: item.time,
+        slot: item.slot,
         type: item.type,
         format: item.format,
         product: item.product,
+        plan: item.plan,
         title: item.title,
         description: item.description,
         script: item.script,
         status: item.status,
+        networks: item.networks,
       };
 
       const { error } = await supabase
