@@ -288,6 +288,7 @@ export function DayPanel({
 
           <div className="rounded-b-xl overflow-hidden border border-t-0 border-border">
             {TIME_SLOTS.map((slot, idx) => {
+              if (slot === "Extra" && !extraVisible) return null;
               const it = drafts[slot];
               if (!it) return null;
               const meta = STATUS_META[it.status];
