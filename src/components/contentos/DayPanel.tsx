@@ -27,6 +27,7 @@ import {
   ChevronRight,
   Copy,
   Flame,
+  Plus,
   Sparkles,
   Trash2,
   Wand2,
@@ -46,11 +47,11 @@ interface DayPanelProps {
   onChangeIso?: (iso: string) => void;
 }
 
-const empty = (iso: string, slot: string): ContentItem => ({
+const empty = (iso: string, time: string): ContentItem => ({
   id: crypto.randomUUID(),
   date: iso,
-  time: slot === "Extra" ? "" : slot,
-  slot,
+  time,
+  slot: time,
   type: "Frase",
   format: "Reels",
   product: "",
@@ -83,28 +84,37 @@ export function DayPanel({
   const weekday = date ? date.getDay() : 0;
   const template = WEEKDAY_TEMPLATES[weekday];
 
-  // local drafts: one per slot — keyed by slot
+  // local drafts: keyed by item id (dynamic rows)
   const [drafts, setDrafts] = useState<Record<string, ContentItem>>({});
+  // ordered list of row ids — keeps stable order even when time is edited
+  const [rowOrder, setRowOrder] = useState<string[]>([]);
   // remembers the status before "auto-postado" was applied via "todas redes marcadas"
   const [prevStatus, setPrevStatus] = useState<Record<string, ContentStatus>>({});
   // expanded row for full editor (script/description)
-  const [expandedSlot, setExpandedSlot] = useState<string | null>(null);
-  // controla se o slot "Extra" está visível (só aparece via botão ou se já tem conteúdo)
-  const [extraVisible, setExtraVisible] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  // build draft map from items + empty rows for unused slots
+  // build draft map from items for this day; if none, seed the default grid
   useEffect(() => {
     if (!iso) return;
     const map: Record<string, ContentItem> = {};
-    TIME_SLOTS.forEach((slot) => {
-      const existing = items.find((it) => it.slot === slot);
-      map[slot] = existing ?? empty(iso, slot);
-    });
+    const order: string[] = [];
+    if (items.length === 0) {
+      // seed defaults the first time the user opens an empty day
+      TIME_SLOTS.filter((s) => s !== "Extra").forEach((slot) => {
+        const it = empty(iso, slot);
+        map[it.id] = it;
+        order.push(it.id);
+      });
+    } else {
+      const sorted = [...items].sort((a, b) => (a.time || "~").localeCompare(b.time || "~"));
+      sorted.forEach((it) => {
+        map[it.id] = it;
+        order.push(it.id);
+      });
+    }
     setDrafts(map);
-    setExpandedSlot(null);
-    // mostrar "Extra" automaticamente se já houver conteúdo nele
-    const extra = items.find((it) => it.slot === "Extra");
-    setExtraVisible(!!(extra && (extra.title || extra.description || extra.plan || extra.networks.length > 0)));
+    setRowOrder(order);
+    setExpandedId(null);
   }, [iso, items]);
 
   if (!iso || !date) {
@@ -118,15 +128,15 @@ export function DayPanel({
     );
   }
 
-  const updateDraft = (slot: string, patch: Partial<ContentItem>) => {
-    setDrafts((prev) => ({ ...prev, [slot]: { ...prev[slot], ...patch } }));
+  const updateDraft = (id: string, patch: Partial<ContentItem>) => {
+    setDrafts((prev) => ({ ...prev, [id]: { ...prev[id], ...patch } }));
   };
 
   const isFilled = (it: ContentItem) =>
     !!(it.title || it.description || it.plan || it.networks.length > 0);
 
-  const persist = (slot: string) => {
-    const it = drafts[slot];
+  const persist = (id: string) => {
+    const it = drafts[id];
     if (!it) return;
     const exists = items.some((x) => x.id === it.id);
     if (!exists && !isFilled(it)) return; // skip empty new rows
@@ -140,19 +150,34 @@ export function DayPanel({
     });
   };
 
-  const handleClearSlot = (slot: string) => {
-    const it = drafts[slot];
+  const handleRemoveRow = (id: string) => {
+    const it = drafts[id];
     if (!it) return;
     const exists = items.some((x) => x.id === it.id);
     if (exists) {
       remove(it.id);
       toast("Bloco removido");
     }
-    setDrafts((prev) => ({ ...prev, [slot]: empty(iso, slot) }));
+    setDrafts((prev) => {
+      const { [id]: _, ...rest } = prev;
+      return rest;
+    });
+    setRowOrder((prev) => prev.filter((x) => x !== id));
+    setExpandedId((cur) => (cur === id ? null : cur));
   };
 
-  const handleDuplicate = (slot: string) => {
-    const it = drafts[slot];
+  const handleAddRow = () => {
+    const used = Object.values(drafts).map((d) => d.time);
+    const next =
+      TIME_SLOTS.filter((s) => s !== "Extra").find((s) => !used.includes(s)) ?? "";
+    const it = empty(iso, next);
+    setDrafts((prev) => ({ ...prev, [it.id]: it }));
+    setRowOrder((prev) => [...prev, it.id]);
+    setExpandedId(it.id);
+  };
+
+  const handleDuplicate = (id: string) => {
+    const it = drafts[id];
     if (!it || !items.some((x) => x.id === it.id)) {
       toast.error("Salve o bloco antes de duplicar");
       return;
@@ -165,15 +190,15 @@ export function DayPanel({
     if (!template) return;
     setDrafts((prev) => {
       const next = { ...prev };
-      // apply to first empty slot or the 18:00 prime slot
-      const target =
-        TIME_SLOTS.find((s) => !isFilled(next[s])) ?? "18:00";
-      next[target] = {
-        ...next[target],
+      const targetId =
+        rowOrder.find((id) => !isFilled(next[id])) ?? rowOrder[0];
+      if (!targetId) return prev;
+      next[targetId] = {
+        ...next[targetId],
         type: template.type,
         format: template.format,
-        title: next[target].title || template.label,
-        description: next[target].description || template.suggestion,
+        title: next[targetId].title || template.label,
+        description: next[targetId].description || template.suggestion,
       };
       return next;
     });
@@ -287,39 +312,44 @@ export function DayPanel({
           </div>
 
           <div className="rounded-b-xl overflow-hidden border border-t-0 border-border">
-            {TIME_SLOTS.map((slot, idx) => {
-              if (slot === "Extra" && !extraVisible) return null;
-              const it = drafts[slot];
+            {rowOrder.map((id, idx) => {
+              const it = drafts[id];
               if (!it) return null;
               const meta = STATUS_META[it.status];
               const filled = isFilled(it);
-              const isExpanded = expandedSlot === slot;
-              const isLast = idx === TIME_SLOTS.length - 1;
+              const isExpanded = expandedId === id;
+              const isLast = idx === rowOrder.length - 1;
 
               return (
-                <div key={slot}>
+                <div key={id}>
                   <div
                     className={cn(
                       "grid grid-cols-[88px_minmax(0,1.5fr)_120px_minmax(0,1.2fr)_140px_180px_44px] gap-px bg-border",
                       !isLast && "border-b border-border",
                     )}
                   >
-                    {/* Slot label */}
+                    {/* Time (editable) */}
                     <div
                       className={cn(
-                        "px-3 py-2.5 flex items-center justify-center font-mono text-xs",
-                        filled
-                          ? "bg-surface-elevated text-foreground"
-                          : "bg-surface text-muted-foreground",
-                        slot === "Extra" && "italic",
+                        "p-0 flex items-center justify-center",
+                        filled ? "bg-surface-elevated" : "bg-surface",
                       )}
                     >
-                      {slot}
+                      <input
+                        type="time"
+                        value={it.time}
+                        onChange={(e) => updateDraft(id, { time: e.target.value, slot: e.target.value })}
+                        className={cn(
+                          "w-full h-full px-2 py-2.5 bg-transparent outline-none text-center font-mono text-xs",
+                          "focus:ring-1 focus:ring-inset focus:ring-primary/40",
+                          filled ? "text-foreground" : "text-muted-foreground",
+                        )}
+                      />
                     </div>
 
                     {/* Title / Hook */}
                     <button
-                      onClick={() => setExpandedSlot(isExpanded ? null : slot)}
+                      onClick={() => setExpandedId(isExpanded ? null : id)}
                       className={cn(
                         "px-3 py-2 text-left text-xs transition-colors min-h-[44px] flex items-center",
                         filled ? "bg-surface-elevated" : "bg-surface",
@@ -340,7 +370,7 @@ export function DayPanel({
                     <div className={cn("px-1 py-1 flex items-center", filled ? "bg-surface-elevated" : "bg-surface")}>
                       <Select
                         value={it.format}
-                        onValueChange={(v) => updateDraft(slot, { format: v as any })}
+                        onValueChange={(v) => updateDraft(id, { format: v as any })}
                       >
                         <SelectTrigger className="h-9 border-0 bg-transparent shadow-none text-xs px-2 hover:bg-surface focus:ring-1 focus:ring-primary/40">
                           <SelectValue />
@@ -356,7 +386,7 @@ export function DayPanel({
                     {/* Inspiração (links) */}
                     <input
                       value={it.plan}
-                      onChange={(e) => updateDraft(slot, { plan: e.target.value })}
+                      onChange={(e) => updateDraft(id, { plan: e.target.value })}
                       placeholder="Cole links de inspiração..."
                       className={cn(
                         "px-3 py-2 text-xs bg-transparent outline-none focus:bg-surface focus:ring-1 focus:ring-inset focus:ring-primary/40",
@@ -370,9 +400,9 @@ export function DayPanel({
                       <Select
                         value={it.status}
                         onValueChange={(v) => {
-                          updateDraft(slot, { status: v as ContentStatus });
+                          updateDraft(id, { status: v as ContentStatus });
                           setPrevStatus((p) => {
-                            const { [slot]: _, ...rest } = p;
+                            const { [id]: _, ...rest } = p;
                             return rest;
                           });
                         }}
@@ -421,22 +451,22 @@ export function DayPanel({
 
                               if (!wasAll && isAll) {
                                 // todas marcadas → vira "Postado", lembrando o status anterior
-                                setPrevStatus((p) => ({ ...p, [slot]: it.status }));
+                                setPrevStatus((p) => ({ ...p, [id]: it.status }));
                                 patch.status = "posted";
                               } else if (wasAll && !isAll) {
                                 // saiu do "todas marcadas" → volta pro status anterior
-                                const restore = prevStatus[slot];
+                                const restore = prevStatus[id];
                                 if (restore) {
                                   patch.status = restore;
                                   setPrevStatus((p) => {
-                                    const { [slot]: _, ...rest } = p;
+                                    const { [id]: _, ...rest } = p;
                                     return rest;
                                   });
                                 } else if (it.status === "posted") {
                                   patch.status = "none";
                                 }
                               }
-                              updateDraft(slot, patch);
+                              updateDraft(id, patch);
                             }}
                             title={net.full}
                             className={cn(
@@ -460,7 +490,7 @@ export function DayPanel({
                       )}
                     >
                       <button
-                        onClick={() => handleClearSlot(slot)}
+                        onClick={() => handleRemoveRow(id)}
                         className="p-1.5 rounded-md text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 transition-colors"
                         title="Limpar bloco"
                       >
@@ -477,7 +507,7 @@ export function DayPanel({
                           <FieldLabel>Título / Hook</FieldLabel>
                           <Input
                             value={it.title}
-                            onChange={(e) => updateDraft(slot, { title: e.target.value })}
+                            onChange={(e) => updateDraft(id, { title: e.target.value })}
                             placeholder="Headline matadora..."
                             className="bg-surface border-border focus-visible:ring-primary/40"
                           />
@@ -486,7 +516,7 @@ export function DayPanel({
                             <FieldLabel>Tipo</FieldLabel>
                             <Select
                               value={it.type}
-                              onValueChange={(v) => updateDraft(slot, { type: v as any })}
+                              onValueChange={(v) => updateDraft(id, { type: v as any })}
                             >
                               <SelectTrigger className="mt-1.5 bg-surface border-border">
                                 <SelectValue />
@@ -503,7 +533,7 @@ export function DayPanel({
                             <FieldLabel>Descrição / Legenda</FieldLabel>
                             <Textarea
                               value={it.description}
-                              onChange={(e) => updateDraft(slot, { description: e.target.value })}
+                              onChange={(e) => updateDraft(id, { description: e.target.value })}
                               rows={4}
                               placeholder="Resumo do que será dito..."
                               className="mt-1.5 bg-surface border-border focus-visible:ring-primary/40 resize-none"
@@ -518,7 +548,7 @@ export function DayPanel({
                           </FieldLabel>
                           <Textarea
                             value={it.script}
-                            onChange={(e) => updateDraft(slot, { script: e.target.value })}
+                            onChange={(e) => updateDraft(id, { script: e.target.value })}
                             rows={11}
                             placeholder="Hook · desenvolvimento · CTA..."
                             className="bg-surface border-border focus-visible:ring-primary/40 font-mono text-xs leading-relaxed resize-none"
@@ -530,7 +560,7 @@ export function DayPanel({
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleDuplicate(slot)}
+                          onClick={() => handleDuplicate(id)}
                           className="gap-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10"
                         >
                           <Copy className="w-3.5 h-3.5" /> Duplicar
@@ -538,8 +568,8 @@ export function DayPanel({
                         <Button
                           size="sm"
                           onClick={() => {
-                            persist(slot);
-                            setExpandedSlot(null);
+                            persist(id);
+                            setExpandedId(null);
                             toast.success("Bloco salvo");
                           }}
                           className="bg-gradient-primary text-primary-foreground hover:opacity-90"
@@ -554,17 +584,13 @@ export function DayPanel({
             })}
           </div>
 
-          {!extraVisible && (
-            <button
-              onClick={() => {
-                setExtraVisible(true);
-                setExpandedSlot("Extra");
-              }}
-              className="mt-3 w-full inline-flex items-center justify-center gap-1.5 px-3 h-10 rounded-xl border border-dashed border-primary/40 bg-primary/5 text-xs font-mono uppercase tracking-[0.18em] text-primary hover:bg-primary/10 transition-colors"
-            >
-              + Adicionar conteúdo extra
-            </button>
-          )}
+          <button
+            onClick={handleAddRow}
+            className="mt-3 w-full inline-flex items-center justify-center gap-1.5 px-3 h-10 rounded-xl border border-dashed border-primary/40 bg-primary/5 text-xs font-mono uppercase tracking-[0.18em] text-primary hover:bg-primary/10 transition-colors"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            Adicionar conteúdo
+          </button>
 
           <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60 text-center">
             Clique em uma linha para abrir o editor completo · "Salvar dia" persiste todos os blocos

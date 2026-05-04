@@ -152,7 +152,7 @@ export function CalendarView({ items, onPickDay, onCopyWeek }: CalendarViewProps
           const isComplete =
             list.length > 0 &&
             requiredSlots.every((s) =>
-              list.some((it) => it.slot === s && it.status === "posted"),
+              list.some((it) => it.time === s && it.status === "posted"),
             );
 
           // intensity bar 0..1
