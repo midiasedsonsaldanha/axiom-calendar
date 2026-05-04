@@ -40,13 +40,14 @@ const fromRow = (r: DbRow): ContentItem => ({
   createdAt: new Date(r.created_at).getTime(),
 });
 
-export function useContentStore() {
+export function useContentStore(ownerId?: string) {
   const { user } = useAuth();
+  const effectiveOwnerId = ownerId ?? user?.id;
   const [items, setItems] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   const reload = useCallback(async () => {
-    if (!user) {
+    if (!user || !effectiveOwnerId) {
       setItems([]);
       setLoading(false);
       return;
@@ -54,6 +55,7 @@ export function useContentStore() {
     const { data, error } = await supabase
       .from("content_items")
       .select("*")
+      .eq("user_id", effectiveOwnerId)
       .order("date", { ascending: true });
     if (error) {
       toast.error("Erro ao carregar conteúdos");
@@ -62,7 +64,7 @@ export function useContentStore() {
     }
     setItems((data as DbRow[]).map(fromRow));
     setLoading(false);
-  }, [user]);
+  }, [user, effectiveOwnerId]);
 
   useEffect(() => {
     setLoading(true);
@@ -73,7 +75,7 @@ export function useContentStore() {
   useEffect(() => {
     if (!user) return;
     const channel = supabase
-      .channel("content_items_changes")
+      .channel(`content_items_changes_${effectiveOwnerId ?? "none"}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "content_items" },
@@ -83,11 +85,11 @@ export function useContentStore() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, reload]);
+  }, [user, effectiveOwnerId, reload]);
 
   const upsert = useCallback(
     async (item: ContentItem) => {
-      if (!user) return;
+      if (!user || !effectiveOwnerId) return;
       const exists = items.some((x) => x.id === item.id);
 
       // optimistic
@@ -97,7 +99,7 @@ export function useContentStore() {
 
       const payload = {
         id: item.id,
-        user_id: user.id,
+        user_id: effectiveOwnerId,
         date: item.date,
         time: item.time,
         slot: item.slot,
@@ -120,7 +122,7 @@ export function useContentStore() {
         reload();
       }
     },
-    [user, items, reload],
+    [user, effectiveOwnerId, items, reload],
   );
 
   const remove = useCallback(
@@ -183,5 +185,5 @@ export function useContentStore() {
     [items, upsert],
   );
 
-  return { items, loading, upsert, remove, duplicate, copyWeek };
+  return { items, loading, upsert, remove, duplicate, copyWeek, ownerId: effectiveOwnerId };
 }

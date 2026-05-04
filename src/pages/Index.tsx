@@ -11,8 +11,9 @@ import {
   type ContentStatus,
   type ContentType,
 } from "@/types/content";
-import { Filter, Search, LayoutDashboard, CalendarDays, Sparkles } from "lucide-react";
+import { Filter, Search, LayoutDashboard, CalendarDays, Sparkles, Share2, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -21,17 +22,29 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { useCalendarShares } from "@/hooks/useCalendarShares";
+import { ShareDialog } from "@/components/contentos/ShareDialog";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
   const [view, setView] = useState<AppView>("dashboard");
   const [pickedDay, setPickedDay] = useState<string | null>(null);
   const [openPanel, setOpenPanel] = useState(false);
 
+  const [shareOpen, setShareOpen] = useState(false);
+
+  const { user } = useAuth();
+  const { calendars } = useCalendarShares();
+  const [activeOwnerId, setActiveOwnerId] = useState<string | undefined>(undefined);
+  const currentOwnerId = activeOwnerId ?? user?.id;
+  const activeCalendar = calendars.find((c) => c.ownerId === currentOwnerId);
+  const isReadOnly = !!activeCalendar && activeCalendar.role === "viewer";
+
   const [filterStatus, setFilterStatus] = useState<"all" | ContentStatus>("all");
   const [filterType, setFilterType] = useState<"all" | ContentType>("all");
   const [search, setSearch] = useState("");
 
-  const { items, upsert, remove, duplicate, copyWeek } = useContentStore();
+  const { items, upsert, remove, duplicate, copyWeek } = useContentStore(currentOwnerId);
 
   const filtered = useMemo(() => {
     return items.filter((it) => {
@@ -136,6 +149,42 @@ const Index = () => {
             </div>
           )}
 
+          {/* Calendar selector + Share */}
+          <div className="hidden md:flex items-center gap-2">
+            {calendars.length > 1 && (
+              <Select
+                value={currentOwnerId ?? ""}
+                onValueChange={(v) => setActiveOwnerId(v)}
+              >
+                <SelectTrigger className="h-9 w-[200px] bg-surface border-border text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {calendars.map((c) => (
+                    <SelectItem key={c.ownerId} value={c.ownerId}>
+                      {c.role === "owner" ? "Minha agenda" : c.email}
+                      {c.role === "viewer" && " (leitor)"}
+                      {c.role === "editor" && " (editor)"}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            {isReadOnly && (
+              <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground flex items-center gap-1 px-2">
+                <Eye className="w-3 h-3" /> somente leitura
+              </span>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9"
+              onClick={() => setShareOpen(true)}
+            >
+              <Share2 className="w-4 h-4 mr-1" /> Compartilhar
+            </Button>
+          </div>
+
           {view === "dashboard" && (
             <p className="hidden md:block ml-auto font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
               {items.length} conteúdo{items.length === 1 ? "" : "s"} no total
@@ -166,6 +215,8 @@ const Index = () => {
         duplicate={duplicate}
         onChangeIso={(iso) => setPickedDay(iso)}
       />
+
+      <ShareDialog open={shareOpen} onOpenChange={setShareOpen} />
     </div>
   );
 };
