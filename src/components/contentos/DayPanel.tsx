@@ -27,6 +27,7 @@ import {
   ChevronRight,
   Copy,
   Flame,
+  Plus,
   Sparkles,
   Trash2,
   Wand2,
@@ -46,11 +47,11 @@ interface DayPanelProps {
   onChangeIso?: (iso: string) => void;
 }
 
-const empty = (iso: string, slot: string): ContentItem => ({
+const empty = (iso: string, time: string): ContentItem => ({
   id: crypto.randomUUID(),
   date: iso,
-  time: slot === "Extra" ? "" : slot,
-  slot,
+  time,
+  slot: time,
   type: "Frase",
   format: "Reels",
   product: "",
@@ -83,28 +84,37 @@ export function DayPanel({
   const weekday = date ? date.getDay() : 0;
   const template = WEEKDAY_TEMPLATES[weekday];
 
-  // local drafts: one per slot — keyed by slot
+  // local drafts: keyed by item id (dynamic rows)
   const [drafts, setDrafts] = useState<Record<string, ContentItem>>({});
+  // ordered list of row ids — keeps stable order even when time is edited
+  const [rowOrder, setRowOrder] = useState<string[]>([]);
   // remembers the status before "auto-postado" was applied via "todas redes marcadas"
   const [prevStatus, setPrevStatus] = useState<Record<string, ContentStatus>>({});
   // expanded row for full editor (script/description)
-  const [expandedSlot, setExpandedSlot] = useState<string | null>(null);
-  // controla se o slot "Extra" está visível (só aparece via botão ou se já tem conteúdo)
-  const [extraVisible, setExtraVisible] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  // build draft map from items + empty rows for unused slots
+  // build draft map from items for this day; if none, seed the default grid
   useEffect(() => {
     if (!iso) return;
     const map: Record<string, ContentItem> = {};
-    TIME_SLOTS.forEach((slot) => {
-      const existing = items.find((it) => it.slot === slot);
-      map[slot] = existing ?? empty(iso, slot);
-    });
+    const order: string[] = [];
+    if (items.length === 0) {
+      // seed defaults the first time the user opens an empty day
+      TIME_SLOTS.filter((s) => s !== "Extra").forEach((slot) => {
+        const it = empty(iso, slot);
+        map[it.id] = it;
+        order.push(it.id);
+      });
+    } else {
+      const sorted = [...items].sort((a, b) => (a.time || "~").localeCompare(b.time || "~"));
+      sorted.forEach((it) => {
+        map[it.id] = it;
+        order.push(it.id);
+      });
+    }
     setDrafts(map);
-    setExpandedSlot(null);
-    // mostrar "Extra" automaticamente se já houver conteúdo nele
-    const extra = items.find((it) => it.slot === "Extra");
-    setExtraVisible(!!(extra && (extra.title || extra.description || extra.plan || extra.networks.length > 0)));
+    setRowOrder(order);
+    setExpandedId(null);
   }, [iso, items]);
 
   if (!iso || !date) {
