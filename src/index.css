@@ -175,6 +175,15 @@
     box-shadow: inset 0 0 0 1px hsl(22 100% 55% / 0.4), 0 8px 24px -8px hsl(22 100% 55% / 0.35);
   }
   .day-card.is-other-month { opacity: 0.35; }
+  .day-card.is-complete {
+    border-color: hsl(var(--status-posted) / 0.6);
+    background: linear-gradient(180deg, hsl(var(--status-posted) / 0.12), hsl(var(--status-posted) / 0.04));
+    box-shadow: inset 0 0 0 1px hsl(var(--status-posted) / 0.35), 0 8px 24px -10px hsl(var(--status-posted) / 0.4);
+  }
+  .day-card.is-complete:hover {
+    border-color: hsl(var(--status-posted) / 0.8);
+    box-shadow: inset 0 0 0 1px hsl(var(--status-posted) / 0.5), 0 12px 30px -10px hsl(var(--status-posted) / 0.5);
+  }
   .day-card.is-focus-sales::after {
     content: '';
     position: absolute; inset: 0;

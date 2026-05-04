@@ -118,7 +118,7 @@ export function DayPanel({
   };
 
   const isFilled = (it: ContentItem) =>
-    !!(it.description || it.plan || it.title || it.format !== "Educativo" || it.networks.length > 0);
+    !!(it.title || it.description || it.plan || it.format !== "Educativo" || it.networks.length > 0);
 
   const persist = (slot: string) => {
     const it = drafts[slot];
@@ -273,7 +273,7 @@ export function DayPanel({
           {/* Column header */}
           <div className="grid grid-cols-[88px_minmax(0,1.5fr)_120px_minmax(0,1.2fr)_140px_180px_44px] gap-px rounded-t-xl overflow-hidden border border-border bg-border">
             <HeaderCell>Horário</HeaderCell>
-            <HeaderCell>Descrição</HeaderCell>
+            <HeaderCell>Título / Hook</HeaderCell>
             <HeaderCell>Formato</HeaderCell>
             <HeaderCell>Plano</HeaderCell>
             <HeaderCell>Status</HeaderCell>
@@ -311,7 +311,7 @@ export function DayPanel({
                       {slot}
                     </div>
 
-                    {/* Description */}
+                    {/* Title / Hook */}
                     <button
                       onClick={() => setExpandedSlot(isExpanded ? null : slot)}
                       className={cn(
@@ -323,10 +323,10 @@ export function DayPanel({
                       <span
                         className={cn(
                           "truncate",
-                          it.description ? "text-foreground/90" : "text-muted-foreground/60 italic",
+                          it.title ? "text-foreground/90" : "text-muted-foreground/60 italic",
                         )}
                       >
-                        {it.description || "Descreva aqui..."}
+                        {it.title || "Título / Hook..."}
                       </span>
                     </button>
 
