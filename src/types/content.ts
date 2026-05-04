@@ -97,35 +97,30 @@ export const STATUS_META: Record<
   ContentStatus,
   { label: string; dot: string; text: string; bg: string; ring: string }
 > = {
-  pending: {
-    label: "Pendente",
-    dot: "bg-status-pending",
-    text: "text-status-pending",
-    bg: "bg-status-pending/10",
-    ring: "ring-status-pending/40",
-  },
-  production: {
-    label: "Em produção",
-    dot: "bg-status-production",
-    text: "text-status-production",
-    bg: "bg-status-production/15",
-    ring: "ring-status-production/40",
-  },
-  scheduled: {
-    label: "Agendado",
-    dot: "bg-status-scheduled",
-    text: "text-status-scheduled",
-    bg: "bg-status-scheduled/15",
-    ring: "ring-status-scheduled/40",
-  },
-  posted: {
-    label: "Postado",
-    dot: "bg-status-posted",
-    text: "text-status-posted",
-    bg: "bg-status-posted/20",
-    ring: "ring-status-posted/40",
-  },
+  none:        { label: "Escolha...",       dot: "bg-status-none",        text: "text-status-none",        bg: "bg-status-none/10",        ring: "ring-status-none/40" },
+  develop:     { label: "Para Desenvolver", dot: "bg-status-develop",     text: "text-status-develop",     bg: "bg-status-develop/15",     ring: "ring-status-develop/40" },
+  inspiration: { label: "Inspiração",       dot: "bg-status-inspiration", text: "text-status-inspiration", bg: "bg-status-inspiration/15", ring: "ring-status-inspiration/40" },
+  script:      { label: "Roteiro",          dot: "bg-status-script",      text: "text-status-script",      bg: "bg-status-script/15",      ring: "ring-status-script/40" },
+  recorded:    { label: "Gravado",          dot: "bg-status-recorded",    text: "text-status-recorded",    bg: "bg-status-recorded/15",    ring: "ring-status-recorded/40" },
+  edited:      { label: "Editado",          dot: "bg-status-edited",      text: "text-status-edited",      bg: "bg-status-edited/15",      ring: "ring-status-edited/40" },
+  scheduled:   { label: "Programado",       dot: "bg-status-scheduled",   text: "text-status-scheduled",   bg: "bg-status-scheduled/15",   ring: "ring-status-scheduled/40" },
+  posted:      { label: "Postado",          dot: "bg-status-posted",      text: "text-status-posted",      bg: "bg-status-posted/20",      ring: "ring-status-posted/40" },
+  // legacy aliases (mantidos para compat)
+  pending:     { label: "Escolha...",       dot: "bg-status-none",        text: "text-status-none",        bg: "bg-status-none/10",        ring: "ring-status-none/40" },
+  production:  { label: "Roteiro",          dot: "bg-status-script",      text: "text-status-script",      bg: "bg-status-script/15",      ring: "ring-status-script/40" },
 };
+
+/** Ordem visível no dropdown (sem legados). */
+export const STATUS_ORDER: ContentStatus[] = [
+  "none",
+  "develop",
+  "inspiration",
+  "script",
+  "recorded",
+  "edited",
+  "scheduled",
+  "posted",
+];
 
 // Templates por dia da semana (0 = dom .. 6 = sab)
 export const WEEKDAY_TEMPLATES: Record<
