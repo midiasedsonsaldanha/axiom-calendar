@@ -18,9 +18,10 @@ interface CalendarViewProps {
   items: ContentItem[];
   onPickDay: (iso: string) => void;
   onCopyWeek: (fromIso: string, toIso: string) => number;
+  readOnly?: boolean;
 }
 
-export function CalendarView({ items, onPickDay, onCopyWeek }: CalendarViewProps) {
+export function CalendarView({ items, onPickDay, onCopyWeek, readOnly = false }: CalendarViewProps) {
   const today = new Date();
   const [cursor, setCursor] = useState(
     () => new Date(today.getFullYear(), today.getMonth(), 1),
@@ -104,7 +105,7 @@ export function CalendarView({ items, onPickDay, onCopyWeek }: CalendarViewProps
           </p>
         </div>
 
-        <div className="ml-auto flex items-center gap-2">
+        {!readOnly && <div className="ml-auto flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
@@ -122,7 +123,7 @@ export function CalendarView({ items, onPickDay, onCopyWeek }: CalendarViewProps
             <Plus className="w-3.5 h-3.5" />
             Novo conteúdo
           </Button>
-        </div>
+        </div>}
       </div>
 
       {/* Weekday header */}
