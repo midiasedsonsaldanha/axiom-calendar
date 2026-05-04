@@ -11,8 +11,9 @@ import {
   type ContentStatus,
   type ContentType,
 } from "@/types/content";
-import { Filter, Search, LayoutDashboard, CalendarDays, Sparkles } from "lucide-react";
+import { Filter, Search, LayoutDashboard, CalendarDays, Sparkles, Share2, Eye } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -21,6 +22,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { useCalendarShares } from "@/hooks/useCalendarShares";
+import { ShareDialog } from "@/components/contentos/ShareDialog";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
   const [view, setView] = useState<AppView>("dashboard");
