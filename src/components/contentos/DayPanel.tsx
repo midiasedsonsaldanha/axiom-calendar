@@ -35,6 +35,7 @@ import {
   Italic,
   List,
   ListOrdered,
+  Palette,
   Pencil,
   Plus,
   Printer,
