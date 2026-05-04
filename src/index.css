@@ -40,11 +40,18 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Status colors */
-    --status-pending: 0 0% 55%;
-    --status-production: 28 95% 60%;
-    --status-scheduled: 210 90% 70%;
+    /* Status colors — editorial pipeline */
+    --status-none: 0 0% 55%;
+    --status-develop: 215 85% 65%;
+    --status-inspiration: 48 100% 65%;
+    --status-script: 28 95% 60%;
+    --status-recorded: 350 85% 65%;
+    --status-edited: 280 75% 65%;
+    --status-scheduled: 190 90% 60%;
     --status-posted: 145 65% 50%;
+    /* legacy aliases */
+    --status-pending: var(--status-none);
+    --status-production: var(--status-script);
 
     --border: 0 0% 14%;
     --border-strong: 0 0% 20%;
