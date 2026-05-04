@@ -983,13 +983,13 @@ function RichEditor({
         onInput={(e) => onChange((e.target as HTMLDivElement).innerHTML)}
         data-placeholder="Hook · desenvolvimento · CTA..."
         className={cn(
-          "min-h-[260px] rounded-md border border-border bg-surface px-3 py-2 text-xs leading-relaxed",
+          "min-h-[260px] rounded-md border border-border bg-white text-neutral-900 px-3 py-2 text-xs leading-relaxed",
           "focus:outline-none focus:ring-1 focus:ring-primary/40",
           "[&_h3]:text-base [&_h3]:font-semibold [&_h3]:my-1",
-          "[&_blockquote]:border-l-2 [&_blockquote]:border-primary/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-muted-foreground",
+          "[&_blockquote]:border-l-2 [&_blockquote]:border-primary/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-neutral-600",
           "[&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5",
           "[&_b]:font-bold [&_strong]:font-bold",
-          "empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/50 empty:before:italic",
+          "empty:before:content-[attr(data-placeholder)] empty:before:text-neutral-400 empty:before:italic",
         )}
       />
     </div>
