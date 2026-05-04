@@ -89,6 +89,8 @@ export function DayPanel({
   const [prevStatus, setPrevStatus] = useState<Record<string, ContentStatus>>({});
   // expanded row for full editor (script/description)
   const [expandedSlot, setExpandedSlot] = useState<string | null>(null);
+  // controla se o slot "Extra" está visível (só aparece via botão ou se já tem conteúdo)
+  const [extraVisible, setExtraVisible] = useState(false);
 
   // build draft map from items + empty rows for unused slots
   useEffect(() => {
