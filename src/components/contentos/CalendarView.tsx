@@ -10,7 +10,7 @@ import {
   startOfWeekSunday,
 } from "@/lib/date";
 import type { ContentItem } from "@/types/content";
-import { STATUS_META } from "@/types/content";
+import { STATUS_META, TIME_SLOTS } from "@/types/content";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
