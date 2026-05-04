@@ -312,34 +312,39 @@ export function DayPanel({
           </div>
 
           <div className="rounded-b-xl overflow-hidden border border-t-0 border-border">
-            {TIME_SLOTS.map((slot, idx) => {
-              if (slot === "Extra" && !extraVisible) return null;
-              const it = drafts[slot];
+            {rowOrder.map((id, idx) => {
+              const it = drafts[id];
               if (!it) return null;
               const meta = STATUS_META[it.status];
               const filled = isFilled(it);
-              const isExpanded = expandedSlot === slot;
-              const isLast = idx === TIME_SLOTS.length - 1;
+              const isExpanded = expandedId === id;
+              const isLast = idx === rowOrder.length - 1;
 
               return (
-                <div key={slot}>
+                <div key={id}>
                   <div
                     className={cn(
                       "grid grid-cols-[88px_minmax(0,1.5fr)_120px_minmax(0,1.2fr)_140px_180px_44px] gap-px bg-border",
                       !isLast && "border-b border-border",
                     )}
                   >
-                    {/* Slot label */}
+                    {/* Time (editable) */}
                     <div
                       className={cn(
-                        "px-3 py-2.5 flex items-center justify-center font-mono text-xs",
-                        filled
-                          ? "bg-surface-elevated text-foreground"
-                          : "bg-surface text-muted-foreground",
-                        slot === "Extra" && "italic",
+                        "p-0 flex items-center justify-center",
+                        filled ? "bg-surface-elevated" : "bg-surface",
                       )}
                     >
-                      {slot}
+                      <input
+                        type="time"
+                        value={it.time}
+                        onChange={(e) => updateDraft(id, { time: e.target.value, slot: e.target.value })}
+                        className={cn(
+                          "w-full h-full px-2 py-2.5 bg-transparent outline-none text-center font-mono text-xs",
+                          "focus:ring-1 focus:ring-inset focus:ring-primary/40",
+                          filled ? "text-foreground" : "text-muted-foreground",
+                        )}
+                      />
                     </div>
 
                     {/* Title / Hook */}
