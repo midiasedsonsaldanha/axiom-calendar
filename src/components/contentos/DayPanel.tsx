@@ -360,25 +360,19 @@ export function DayPanel({
                     <div className={cn("px-1 py-1 flex items-center", filled ? "bg-surface-elevated" : "bg-surface")}>
                       <Select
                         value={it.status}
-                        onValueChange={(v) => updateDraft(slot, { status: v as ContentStatus })}
+                        onValueChange={(v) => updateDraft(slot, { status: v as ContentStatus, prevStatus: undefined })}
                       >
                         <SelectTrigger
                           className={cn(
                             "h-9 border-0 shadow-none text-xs px-2 gap-1.5 focus:ring-1 focus:ring-primary/40 transition-colors",
-                            it.status === "posted"
-                              ? "bg-status-posted/20 text-status-posted hover:bg-status-posted/25"
-                              : it.status === "scheduled"
-                                ? "bg-status-scheduled/15 text-status-scheduled hover:bg-status-scheduled/20"
-                                : it.status === "production"
-                                  ? "bg-status-production/15 text-status-production hover:bg-status-production/20"
-                                  : "bg-transparent text-muted-foreground hover:bg-surface",
+                            meta.bg,
+                            meta.text,
                           )}
                         >
-                          <span className={cn("status-dot", meta.dot)} />
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {(Object.keys(STATUS_META) as ContentStatus[]).map((s) => (
+                          {STATUS_ORDER.map((s) => (
                             <SelectItem key={s} value={s}>
                               <span className="flex items-center gap-2">
                                 <span className={cn("status-dot", STATUS_META[s].dot)} />
@@ -389,8 +383,6 @@ export function DayPanel({
                         </SelectContent>
                       </Select>
                     </div>
-
-                    {/* Networks */}
                     <div
                       className={cn(
                         "px-2 py-2 flex flex-wrap gap-1 items-center",
