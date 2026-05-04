@@ -12,20 +12,21 @@ export type ContentStatus =
   | "production";
 
 export type ContentType =
-  | "Reels"
-  | "Story"
-  | "Carrossel"
-  | "Live"
-  | "Post"
-  | "YouTube";
+  | "Fornecedores"
+  | "Produtos"
+  | "Ferramentas"
+  | "Frase"
+  | "React"
+  | "Monte sua Loja"
+  | "Família"
+  | "tbt"
+  | "Notícia"
+  | "Expedy"
+  | "Avantpro"
+  | "UpSeller"
+  | "Shopee Oficial";
 
-export type ContentFormat =
-  | "Venda"
-  | "Educativo"
-  | "Prova social"
-  | "Bastidor"
-  | "Engajamento"
-  | "Lançamento";
+export type ContentFormat = "Reels" | "Post";
 
 export interface ContentItem {
   id: string;
@@ -45,22 +46,22 @@ export interface ContentItem {
 }
 
 export const CONTENT_TYPES: ContentType[] = [
-  "Reels",
-  "Story",
-  "Carrossel",
-  "Live",
-  "Post",
-  "YouTube",
+  "Fornecedores",
+  "Produtos",
+  "Ferramentas",
+  "Frase",
+  "React",
+  "Monte sua Loja",
+  "Família",
+  "tbt",
+  "Notícia",
+  "Expedy",
+  "Avantpro",
+  "UpSeller",
+  "Shopee Oficial",
 ];
 
-export const CONTENT_FORMATS: ContentFormat[] = [
-  "Venda",
-  "Educativo",
-  "Prova social",
-  "Bastidor",
-  "Engajamento",
-  "Lançamento",
-];
+export const CONTENT_FORMATS: ContentFormat[] = ["Reels", "Post"];
 
 /** Slots fixos da grade diária (estilo planilha). */
 export const TIME_SLOTS: string[] = [
