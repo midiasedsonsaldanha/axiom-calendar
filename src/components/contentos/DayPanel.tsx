@@ -94,6 +94,8 @@ export function DayPanel({
   const [rowOrder, setRowOrder] = useState<string[]>([]);
   // remembers the status before "auto-postado" was applied via "todas redes marcadas"
   const [prevStatus, setPrevStatus] = useState<Record<string, ContentStatus>>({});
+  // images uploaded per row (data URLs, in-memory only)
+  const [scriptImages, setScriptImages] = useState<Record<string, string[]>>({});
   // expanded row for full editor (script/description)
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
