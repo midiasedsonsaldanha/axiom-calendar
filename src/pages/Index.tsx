@@ -219,6 +219,7 @@ const Index = () => {
               items={filtered}
               onPickDay={handlePickDay}
               onCopyWeek={copyWeek}
+              readOnly={isReadOnly}
             />
           )}
         </main>
@@ -232,6 +233,7 @@ const Index = () => {
         upsert={upsert}
         remove={remove}
         duplicate={duplicate}
+        readOnly={isReadOnly}
         onChangeIso={(iso) => setPickedDay(iso)}
       />
 
