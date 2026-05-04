@@ -26,6 +26,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Copy,
+  ExternalLink,
   Flame,
   Plus,
   Sparkles,
