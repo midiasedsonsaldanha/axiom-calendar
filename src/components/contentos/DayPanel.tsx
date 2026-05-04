@@ -28,8 +28,10 @@ import {
   Copy,
   ExternalLink,
   Flame,
+  ImagePlus,
   Pencil,
   Plus,
+  Printer,
   Sparkles,
   Trash2,
   Wand2,
@@ -92,6 +94,8 @@ export function DayPanel({
   const [rowOrder, setRowOrder] = useState<string[]>([]);
   // remembers the status before "auto-postado" was applied via "todas redes marcadas"
   const [prevStatus, setPrevStatus] = useState<Record<string, ContentStatus>>({});
+  // images uploaded per row (data URLs, in-memory only)
+  const [scriptImages, setScriptImages] = useState<Record<string, string[]>>({});
   // expanded row for full editor (script/description)
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -539,10 +543,88 @@ export function DayPanel({
                         </div>
 
                         <div className="space-y-3">
-                          <FieldLabel className="flex items-center gap-1.5">
-                            <Sparkles className="w-3 h-3 text-primary" />
-                            Roteiro completo
-                          </FieldLabel>
+                          <div className="flex items-center justify-between gap-2">
+                            <FieldLabel className="flex items-center gap-1.5">
+                              <Sparkles className="w-3 h-3 text-primary" />
+                              Roteiro completo
+                            </FieldLabel>
+                            <div className="flex items-center gap-1">
+                              <label
+                                className="inline-flex items-center gap-1 h-7 px-2 rounded-md border border-border bg-surface hover:bg-surface-elevated text-[10px] font-mono uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+                                title="Adicionar imagens"
+                              >
+                                <ImagePlus className="w-3 h-3" />
+                                Imagens
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  multiple
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const files = Array.from(e.target.files ?? []);
+                                    if (!files.length) return;
+                                    Promise.all(
+                                      files.map(
+                                        (f) =>
+                                          new Promise<string>((res) => {
+                                            const r = new FileReader();
+                                            r.onload = () => res(String(r.result));
+                                            r.readAsDataURL(f);
+                                          }),
+                                      ),
+                                    ).then((urls) => {
+                                      setScriptImages((prev) => ({
+                                        ...prev,
+                                        [id]: [...(prev[id] ?? []), ...urls],
+                                      }));
+                                      toast.success(`${urls.length} imagem(ns) adicionada(s)`);
+                                    });
+                                    e.target.value = "";
+                                  }}
+                                />
+                              </label>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const imgs = scriptImages[id] ?? [];
+                                  const w = window.open("", "_blank", "width=800,height=900");
+                                  if (!w) {
+                                    toast.error("Permita pop-ups para imprimir");
+                                    return;
+                                  }
+                                  const esc = (s: string) =>
+                                    s.replace(/[&<>]/g, (c) =>
+                                      c === "&" ? "&amp;" : c === "<" ? "&lt;" : "&gt;",
+                                    );
+                                  w.document.write(`<!doctype html><html><head><meta charset="utf-8"/><title>Roteiro — ${esc(it.title || "Sem título")}</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:32px;color:#111;line-height:1.55;max-width:780px;margin:0 auto;}
+  h1{font-size:22px;margin:0 0 4px;}
+  .meta{color:#666;font-size:12px;margin-bottom:24px;}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.15em;color:#666;margin:24px 0 8px;border-bottom:1px solid #eee;padding-bottom:4px;}
+  pre{white-space:pre-wrap;word-wrap:break-word;font-family:inherit;font-size:14px;margin:0;}
+  .imgs{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:8px;}
+  .imgs img{width:100%;height:auto;border-radius:6px;border:1px solid #eee;}
+  @media print{body{padding:0;}}
+</style>
+</head><body>
+<h1>${esc(it.title || "Sem título")}</h1>
+<div class="meta">${esc(it.date)} · ${esc(it.time)} · ${esc(it.type)} · ${esc(it.format)}</div>
+${it.description ? `<h2>Descrição</h2><pre>${esc(it.description)}</pre>` : ""}
+${it.script ? `<h2>Roteiro</h2><pre>${esc(it.script)}</pre>` : ""}
+${imgs.length ? `<h2>Imagens</h2><div class="imgs">${imgs.map((u) => `<img src="${u}"/>`).join("")}</div>` : ""}
+<script>window.onload=()=>setTimeout(()=>window.print(),300);<\/script>
+</body></html>`);
+                                  w.document.close();
+                                }}
+                                className="inline-flex items-center gap-1 h-7 px-2 rounded-md border border-border bg-surface hover:bg-surface-elevated text-[10px] font-mono uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground transition-colors"
+                                title="Imprimir roteiro"
+                              >
+                                <Printer className="w-3 h-3" />
+                                Imprimir
+                              </button>
+                            </div>
+                          </div>
                           <Textarea
                             value={it.script}
                             onChange={(e) => updateDraft(id, { script: e.target.value })}
@@ -550,6 +632,28 @@ export function DayPanel({
                             placeholder="Hook · desenvolvimento · CTA..."
                             className="bg-surface border-border focus-visible:ring-primary/40 font-mono text-xs leading-relaxed resize-none"
                           />
+                          {(scriptImages[id]?.length ?? 0) > 0 && (
+                            <div className="grid grid-cols-3 gap-2">
+                              {scriptImages[id].map((src, i) => (
+                                <div key={i} className="relative group rounded-md overflow-hidden border border-border bg-surface">
+                                  <img src={src} alt={`Imagem ${i + 1}`} className="w-full h-20 object-cover" />
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setScriptImages((prev) => ({
+                                        ...prev,
+                                        [id]: prev[id].filter((_, idx) => idx !== i),
+                                      }))
+                                    }
+                                    className="absolute top-1 right-1 p-1 rounded-md bg-background/80 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                                    title="Remover"
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
 
