@@ -149,6 +149,46 @@ export function DayPanel({
     setDrafts((prev) => ({ ...prev, [id]: { ...prev[id], ...patch } }));
   };
 
+  const applyFormat = (
+    id: string,
+    mode: "wrap" | "line",
+    a: string,
+    b?: string,
+  ) => {
+    const ta = scriptRefs.get(id);
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const value = ta.value;
+    let newText: string;
+    let newStart: number;
+    let newEnd: number;
+    if (mode === "line") {
+      const lineStart = value.lastIndexOf("\n", start - 1) + 1;
+      const before = value.slice(0, lineStart);
+      const region = value.slice(lineStart, end);
+      const after = value.slice(end);
+      const lines = (region || "").split("\n");
+      const prefixed = lines
+        .map((l, i) => `${a.includes("{n}") ? a.replace("{n}", String(i + 1)) : a}${l}`)
+        .join("\n");
+      newText = before + prefixed + after;
+      newStart = before.length;
+      newEnd = before.length + prefixed.length;
+    } else {
+      const selected = value.slice(start, end);
+      const closing = b ?? a;
+      newText = value.slice(0, start) + a + selected + closing + value.slice(end);
+      newStart = start + a.length;
+      newEnd = newStart + selected.length;
+    }
+    updateDraft(id, { script: newText });
+    requestAnimationFrame(() => {
+      ta.focus();
+      ta.setSelectionRange(newStart, newEnd);
+    });
+  };
+
   const isFilled = (it: ContentItem) =>
     !!(it.title || it.description || it.plan || it.networks.length > 0);
 
