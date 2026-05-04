@@ -997,12 +997,14 @@ function SectionEditor({
   placeholder,
   value,
   onChange,
+  readOnly = false,
   minHeight,
 }: {
   label: string;
   placeholder: string;
   value: string;
   onChange: (html: string) => void;
+  readOnly?: boolean;
   minHeight: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -1048,7 +1050,7 @@ function SectionEditor({
         <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-primary font-semibold">
           {label}
         </span>
-        <div className="flex flex-wrap items-center gap-0.5">
+        {!readOnly && <div className="flex flex-wrap items-center gap-0.5">
           {tools.map(({ icon: Icon, title, cmd, arg }) => (
             <button
               key={title}
@@ -1096,13 +1098,13 @@ function SectionEditor({
               </div>
             )}
           </div>
-        </div>
+        </div>}
       </div>
       <div
         ref={ref}
-        contentEditable
+        contentEditable={!readOnly}
         suppressContentEditableWarning
-        onInput={(e) => onChange((e.target as HTMLDivElement).innerHTML)}
+        onInput={(e) => !readOnly && onChange((e.target as HTMLDivElement).innerHTML)}
         data-placeholder={placeholder}
         style={{ minHeight }}
         className={cn(
