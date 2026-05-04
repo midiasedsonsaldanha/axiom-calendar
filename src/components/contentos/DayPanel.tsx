@@ -311,7 +311,7 @@ export function DayPanel({
                       {slot}
                     </div>
 
-                    {/* Description */}
+                    {/* Title / Hook */}
                     <button
                       onClick={() => setExpandedSlot(isExpanded ? null : slot)}
                       className={cn(
@@ -323,10 +323,10 @@ export function DayPanel({
                       <span
                         className={cn(
                           "truncate",
-                          it.description ? "text-foreground/90" : "text-muted-foreground/60 italic",
+                          it.title ? "text-foreground/90" : "text-muted-foreground/60 italic",
                         )}
                       >
-                        {it.description || "Descreva aqui..."}
+                        {it.title || "Título / Hook..."}
                       </span>
                     </button>
 
