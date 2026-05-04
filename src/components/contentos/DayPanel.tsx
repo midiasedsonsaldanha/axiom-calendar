@@ -192,18 +192,18 @@ export function DayPanel({
   };
 
   const isFilled = (it: ContentItem) =>
-    !!(it.title || it.description || it.plan || it.networks.length > 0);
+    !!(it.title || it.description || it.plan || it.script || it.networks.length > 0);
 
-  const persist = (id: string) => {
+  const persist = (id: string, force = false) => {
     const it = drafts[id];
     if (!it) return;
     const exists = items.some((x) => x.id === it.id);
-    if (!exists && !isFilled(it)) return; // skip empty new rows
+    if (!exists && !force && !isFilled(it)) return; // skip empty new rows
     upsert(it);
   };
 
   const handleSaveAll = () => {
-    Object.keys(drafts).forEach(persist);
+    Object.keys(drafts).forEach((id) => persist(id));
     toast.success("Dia salvo", {
       description: `${WEEKDAYS_FULL[weekday]} · ${date.toLocaleDateString("pt-BR")}`,
     });
@@ -726,7 +726,7 @@ ${imgs.length ? `<h2>Imagens</h2><div class="imgs">${imgs.map((u) => `<img src="
                         <Button
                           size="sm"
                           onClick={() => {
-                            persist(id);
+                            persist(id, true);
                             setExpandedId(null);
                             toast.success("Bloco salvo");
                           }}
