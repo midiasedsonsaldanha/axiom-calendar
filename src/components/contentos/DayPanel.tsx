@@ -561,13 +561,15 @@ export function DayPanel({
                         filled ? "bg-surface-elevated" : "bg-surface",
                       )}
                     >
-                      <button
-                        onClick={() => handleRemoveRow(id)}
-                        className="p-1.5 rounded-md text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 transition-colors"
-                        title="Limpar bloco"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      {!readOnly && (
+                        <button
+                          onClick={() => handleRemoveRow(id)}
+                          className="p-1.5 rounded-md text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 transition-colors"
+                          title="Limpar bloco"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                     </div>
                   </div>
 
@@ -579,6 +581,7 @@ export function DayPanel({
                           <FieldLabel>Título / Hook</FieldLabel>
                           <Input
                             value={it.title}
+                            readOnly={readOnly}
                             onChange={(e) => updateDraft(id, { title: e.target.value })}
                             placeholder="Headline matadora..."
                             className="bg-surface border-border focus-visible:ring-primary/40"
@@ -588,6 +591,7 @@ export function DayPanel({
                             <FieldLabel>Tipo</FieldLabel>
                             <Select
                               value={it.type}
+                              disabled={readOnly}
                               onValueChange={(v) => updateDraft(id, { type: v as any })}
                             >
                               <SelectTrigger className="mt-1.5 bg-surface border-border">
@@ -605,6 +609,7 @@ export function DayPanel({
                             <FieldLabel>Descrição / Legenda</FieldLabel>
                             <Textarea
                               value={it.description}
+                              readOnly={readOnly}
                               onChange={(e) => updateDraft(id, { description: e.target.value })}
                               rows={4}
                               placeholder="Resumo do que será dito..."
