@@ -663,7 +663,7 @@ export function DayPanel({
 <h1>${esc(it.title || "Sem título")}</h1>
 <div class="meta">${esc(it.date)} · ${esc(it.time)} · ${esc(it.type)} · ${esc(it.format)}</div>
 ${it.description ? `<h2>Descrição</h2><pre>${esc(it.description)}</pre>` : ""}
-${it.script ? `<h2>Roteiro</h2><pre>${esc(it.script)}</pre>` : ""}
+${it.script ? `<h2>Roteiro</h2><div>${it.script}</div>` : ""}
 ${imgs.length ? `<h2>Imagens</h2><div class="imgs">${imgs.map((u) => `<img src="${u}"/>`).join("")}</div>` : ""}
 <script>window.onload=()=>setTimeout(()=>window.print(),300);<\/script>
 </body></html>`);
