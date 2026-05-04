@@ -38,13 +38,15 @@ const Index = () => {
   const [activeOwnerId, setActiveOwnerId] = useState<string | undefined>(undefined);
   const currentOwnerId = activeOwnerId ?? user?.id;
   const activeCalendar = calendars.find((c) => c.ownerId === currentOwnerId);
-  const isReadOnly = !!activeCalendar && activeCalendar.role === "viewer";
+  const isOwnCalendar = !!user?.id && currentOwnerId === user.id;
+  const canEditCalendar = isOwnCalendar || activeCalendar?.role === "editor";
+  const isReadOnly = !canEditCalendar;
 
   const [filterStatus, setFilterStatus] = useState<"all" | ContentStatus>("all");
   const [filterType, setFilterType] = useState<"all" | ContentType>("all");
   const [search, setSearch] = useState("");
 
-  const store = useContentStore(currentOwnerId);
+  const store = useContentStore(currentOwnerId, canEditCalendar);
   const { items } = store;
   const blockWrite = () => {
     // dynamic import avoided; use window.console fallback if needed
@@ -219,6 +221,7 @@ const Index = () => {
               items={filtered}
               onPickDay={handlePickDay}
               onCopyWeek={copyWeek}
+              readOnly={isReadOnly}
             />
           )}
         </main>
@@ -232,6 +235,7 @@ const Index = () => {
         upsert={upsert}
         remove={remove}
         duplicate={duplicate}
+        readOnly={isReadOnly}
         onChangeIso={(iso) => setPickedDay(iso)}
       />
 

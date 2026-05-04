@@ -40,7 +40,7 @@ const fromRow = (r: DbRow): ContentItem => ({
   createdAt: new Date(r.created_at).getTime(),
 });
 
-export function useContentStore(ownerId?: string) {
+export function useContentStore(ownerId?: string, canWrite = true) {
   const { user } = useAuth();
   const effectiveOwnerId = ownerId ?? user?.id;
   const [items, setItems] = useState<ContentItem[]>([]);
@@ -89,7 +89,7 @@ export function useContentStore(ownerId?: string) {
 
   const upsert = useCallback(
     async (item: ContentItem) => {
-      if (!user || !effectiveOwnerId) return;
+      if (!user || !effectiveOwnerId || !canWrite) return;
       const exists = items.some((x) => x.id === item.id);
 
       // optimistic
@@ -122,11 +122,12 @@ export function useContentStore(ownerId?: string) {
         reload();
       }
     },
-    [user, effectiveOwnerId, items, reload],
+    [user, effectiveOwnerId, canWrite, items, reload],
   );
 
   const remove = useCallback(
     async (id: string) => {
+      if (!canWrite) return;
       setItems((prev) => prev.filter((x) => x.id !== id));
       const { error } = await supabase.from("content_items").delete().eq("id", id);
       if (error) {
@@ -134,11 +135,12 @@ export function useContentStore(ownerId?: string) {
         reload();
       }
     },
-    [reload],
+    [canWrite, reload],
   );
 
   const duplicate = useCallback(
     async (id: string) => {
+      if (!canWrite) return;
       const found = items.find((x) => x.id === id);
       if (!found || !user) return;
       const copy: ContentItem = {
@@ -150,11 +152,12 @@ export function useContentStore(ownerId?: string) {
       };
       await upsert(copy);
     },
-    [items, user, upsert],
+    [items, user, canWrite, upsert],
   );
 
   const copyWeek = useCallback(
     (fromIso: string, toIso: string) => {
+      if (!canWrite) return 0;
       const fromDate = new Date(fromIso + "T00:00:00");
       const toDate = new Date(toIso + "T00:00:00");
       const diffDays = Math.round(
@@ -182,7 +185,7 @@ export function useContentStore(ownerId?: string) {
       });
       return count;
     },
-    [items, upsert],
+    [items, canWrite, upsert],
   );
 
   return { items, loading, upsert, remove, duplicate, copyWeek, ownerId: effectiveOwnerId };

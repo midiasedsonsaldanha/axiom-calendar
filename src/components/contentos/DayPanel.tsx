@@ -57,6 +57,7 @@ interface DayPanelProps {
   upsert: (item: ContentItem) => void;
   remove: (id: string) => void;
   duplicate: (id: string) => void;
+  readOnly?: boolean;
   onChangeIso?: (iso: string) => void;
 }
 
@@ -91,6 +92,7 @@ export function DayPanel({
   upsert,
   remove,
   duplicate,
+  readOnly = false,
   onChangeIso,
 }: DayPanelProps) {
   const date = iso ? fromIso(iso) : null;
@@ -117,7 +119,7 @@ export function DayPanel({
     if (!iso) return;
     const map: Record<string, ContentItem> = {};
     const order: string[] = [];
-    if (items.length === 0) {
+    if (items.length === 0 && !readOnly) {
       // seed defaults the first time the user opens an empty day
       TIME_SLOTS.filter((s) => s !== "Extra").forEach((slot) => {
         const it = empty(iso, slot);
@@ -134,7 +136,7 @@ export function DayPanel({
     setDrafts(map);
     setRowOrder(order);
     setExpandedId(null);
-  }, [iso, items]);
+  }, [iso, items, readOnly]);
 
   if (!iso || !date) {
     return (
@@ -148,6 +150,7 @@ export function DayPanel({
   }
 
   const updateDraft = (id: string, patch: Partial<ContentItem>) => {
+    if (readOnly) return;
     setDrafts((prev) => ({ ...prev, [id]: { ...prev[id], ...patch } }));
   };
 
@@ -195,6 +198,7 @@ export function DayPanel({
     !!(it.title || it.description || it.plan || it.script || it.networks.length > 0);
 
   const persist = (id: string, force = false) => {
+    if (readOnly) return;
     const it = drafts[id];
     if (!it) return;
     const exists = items.some((x) => x.id === it.id);
@@ -203,6 +207,7 @@ export function DayPanel({
   };
 
   const handleSaveAll = () => {
+    if (readOnly) return;
     Object.keys(drafts).forEach((id) => persist(id));
     toast.success("Dia salvo", {
       description: `${WEEKDAYS_FULL[weekday]} · ${date.toLocaleDateString("pt-BR")}`,
@@ -210,6 +215,7 @@ export function DayPanel({
   };
 
   const handleRemoveRow = (id: string) => {
+    if (readOnly) return;
     const it = drafts[id];
     if (!it) return;
     const exists = items.some((x) => x.id === it.id);
@@ -226,6 +232,7 @@ export function DayPanel({
   };
 
   const handleAddRow = () => {
+    if (readOnly) return;
     const used = Object.values(drafts).map((d) => d.time);
     const next =
       TIME_SLOTS.filter((s) => s !== "Extra").find((s) => !used.includes(s)) ?? "";
@@ -236,6 +243,7 @@ export function DayPanel({
   };
 
   const handleDuplicate = (id: string) => {
+    if (readOnly) return;
     const it = drafts[id];
     if (!it || !items.some((x) => x.id === it.id)) {
       toast.error("Salve o bloco antes de duplicar");
@@ -246,6 +254,7 @@ export function DayPanel({
   };
 
   const handleApplyTemplate = () => {
+    if (readOnly) return;
     if (!template) return;
     setDrafts((prev) => {
       const next = { ...prev };
@@ -317,7 +326,7 @@ export function DayPanel({
               </h2>
             </div>
 
-            {template && (
+            {template && !readOnly && (
               <button
                 onClick={handleApplyTemplate}
                 className="hidden md:inline-flex items-center gap-1.5 px-3 h-9 rounded-lg border border-primary/30 bg-primary/5 text-xs text-primary hover:bg-primary/10 transition-colors"
@@ -327,13 +336,15 @@ export function DayPanel({
               </button>
             )}
 
-            <Button
-              size="sm"
-              onClick={handleSaveAll}
-              className="h-9 px-4 bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-glow-soft"
-            >
-              Salvar dia
-            </Button>
+            {!readOnly && (
+              <Button
+                size="sm"
+                onClick={handleSaveAll}
+                className="h-9 px-4 bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-glow-soft"
+              >
+                Salvar dia
+              </Button>
+            )}
           </div>
 
           {/* Day strip mini header — like a banner */}
@@ -360,7 +371,7 @@ export function DayPanel({
         {/* Grid */}
         <div className="px-4 md:px-6 py-5">
           {/* Column header */}
-          <div className="grid grid-cols-[88px_minmax(0,1.5fr)_120px_minmax(0,1.2fr)_140px_180px_44px] gap-px rounded-t-xl overflow-hidden border border-border bg-border">
+            <div className="grid grid-cols-[88px_minmax(0,1.5fr)_120px_minmax(0,1.2fr)_140px_180px_44px] gap-px rounded-t-xl overflow-hidden border border-border bg-border">
             <HeaderCell>Horário</HeaderCell>
             <HeaderCell>Título / Hook</HeaderCell>
             <HeaderCell>Formato</HeaderCell>
@@ -387,7 +398,7 @@ export function DayPanel({
                       !isLast && "border-b border-border",
                     )}
                   >
-                    {/* Time (editable) */}
+                      {/* Time */}
                     <div
                       className={cn(
                         "p-0 flex items-center justify-center",
@@ -397,6 +408,8 @@ export function DayPanel({
                       <input
                         type="time"
                         value={it.time}
+                        readOnly={readOnly}
+                        disabled={readOnly}
                         onChange={(e) => updateDraft(id, { time: e.target.value, slot: e.target.value })}
                         className={cn(
                           "w-full h-full px-2 py-2.5 bg-transparent outline-none text-center font-mono text-xs [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-80 [&::-webkit-calendar-picker-indicator]:cursor-pointer",
@@ -429,6 +442,7 @@ export function DayPanel({
                     <div className={cn("px-1 py-1 flex items-center", filled ? "bg-surface-elevated" : "bg-surface")}>
                       <Select
                         value={it.format}
+                        disabled={readOnly}
                         onValueChange={(v) => updateDraft(id, { format: v as any })}
                       >
                         <SelectTrigger className="h-9 border-0 bg-transparent shadow-none text-xs px-2 hover:bg-surface focus:ring-1 focus:ring-primary/40">
@@ -443,9 +457,10 @@ export function DayPanel({
                     </div>
 
                     {/* Inspiração (links) */}
-                    <InspirationCell
+                      <InspirationCell
                       value={it.plan}
                       filled={filled}
+                        readOnly={readOnly}
                       onChange={(v) => updateDraft(id, { plan: v })}
                     />
 
@@ -453,6 +468,7 @@ export function DayPanel({
                     <div className={cn("px-1 py-1 flex items-center", filled ? "bg-surface-elevated" : "bg-surface")}>
                       <Select
                         value={it.status}
+                        disabled={readOnly}
                         onValueChange={(v) => {
                           updateDraft(id, { status: v as ContentStatus });
                           setPrevStatus((p) => {
@@ -494,6 +510,7 @@ export function DayPanel({
                           <button
                             key={net.id}
                             type="button"
+                            disabled={readOnly}
                             onClick={() => {
                               const nextNetworks = active
                                 ? it.networks.filter((n) => n !== net.id)
@@ -528,6 +545,7 @@ export function DayPanel({
                               active
                                 ? "bg-primary text-primary-foreground border-primary shadow-glow-soft"
                                 : "bg-transparent text-muted-foreground border-border hover:border-primary/40 hover:text-foreground",
+                              readOnly && "cursor-default hover:border-border hover:text-muted-foreground",
                             )}
                           >
                             {net.label}
@@ -543,13 +561,15 @@ export function DayPanel({
                         filled ? "bg-surface-elevated" : "bg-surface",
                       )}
                     >
-                      <button
-                        onClick={() => handleRemoveRow(id)}
-                        className="p-1.5 rounded-md text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 transition-colors"
-                        title="Limpar bloco"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      {!readOnly && (
+                        <button
+                          onClick={() => handleRemoveRow(id)}
+                          className="p-1.5 rounded-md text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 transition-colors"
+                          title="Limpar bloco"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                     </div>
                   </div>
 
@@ -561,6 +581,7 @@ export function DayPanel({
                           <FieldLabel>Título / Hook</FieldLabel>
                           <Input
                             value={it.title}
+                            readOnly={readOnly}
                             onChange={(e) => updateDraft(id, { title: e.target.value })}
                             placeholder="Headline matadora..."
                             className="bg-surface border-border focus-visible:ring-primary/40"
@@ -570,6 +591,7 @@ export function DayPanel({
                             <FieldLabel>Tipo</FieldLabel>
                             <Select
                               value={it.type}
+                              disabled={readOnly}
                               onValueChange={(v) => updateDraft(id, { type: v as any })}
                             >
                               <SelectTrigger className="mt-1.5 bg-surface border-border">
@@ -587,6 +609,7 @@ export function DayPanel({
                             <FieldLabel>Descrição / Legenda</FieldLabel>
                             <Textarea
                               value={it.description}
+                              readOnly={readOnly}
                               onChange={(e) => updateDraft(id, { description: e.target.value })}
                               rows={4}
                               placeholder="Resumo do que será dito..."
@@ -602,40 +625,42 @@ export function DayPanel({
                               Roteiro completo
                             </FieldLabel>
                             <div className="flex items-center gap-1">
-                              <label
-                                className="inline-flex items-center gap-1 h-7 px-2 rounded-md border border-border bg-surface hover:bg-surface-elevated text-[10px] font-mono uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
-                                title="Adicionar imagens"
-                              >
-                                <ImagePlus className="w-3 h-3" />
-                                Imagens
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  multiple
-                                  className="hidden"
-                                  onChange={(e) => {
-                                    const files = Array.from(e.target.files ?? []);
-                                    if (!files.length) return;
-                                    Promise.all(
-                                      files.map(
-                                        (f) =>
-                                          new Promise<string>((res) => {
-                                            const r = new FileReader();
-                                            r.onload = () => res(String(r.result));
-                                            r.readAsDataURL(f);
-                                          }),
-                                      ),
-                                    ).then((urls) => {
-                                      setScriptImages((prev) => ({
-                                        ...prev,
-                                        [id]: [...(prev[id] ?? []), ...urls],
-                                      }));
-                                      toast.success(`${urls.length} imagem(ns) adicionada(s)`);
-                                    });
-                                    e.target.value = "";
-                                  }}
-                                />
-                              </label>
+                              {!readOnly && (
+                                <label
+                                  className="inline-flex items-center gap-1 h-7 px-2 rounded-md border border-border bg-surface hover:bg-surface-elevated text-[10px] font-mono uppercase tracking-[0.15em] text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+                                  title="Adicionar imagens"
+                                >
+                                  <ImagePlus className="w-3 h-3" />
+                                  Imagens
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    className="hidden"
+                                    onChange={(e) => {
+                                      const files = Array.from(e.target.files ?? []);
+                                      if (!files.length) return;
+                                      Promise.all(
+                                        files.map(
+                                          (f) =>
+                                            new Promise<string>((res) => {
+                                              const r = new FileReader();
+                                              r.onload = () => res(String(r.result));
+                                              r.readAsDataURL(f);
+                                            }),
+                                        ),
+                                      ).then((urls) => {
+                                        setScriptImages((prev) => ({
+                                          ...prev,
+                                          [id]: [...(prev[id] ?? []), ...urls],
+                                        }));
+                                        toast.success(`${urls.length} imagem(ns) adicionada(s)`);
+                                      });
+                                      e.target.value = "";
+                                    }}
+                                  />
+                                </label>
+                              )}
                               <button
                                 type="button"
                                 onClick={() => {
@@ -691,6 +716,7 @@ ${imgs.length ? `<h2 style="font-size:11px;letter-spacing:.18em;text-transform:u
                           </div>
                           <RichEditor
                             value={it.script}
+                            readOnly={readOnly}
                             onChange={(html) => updateDraft(id, { script: html })}
                           />
                           {(scriptImages[id]?.length ?? 0) > 0 && (
@@ -705,7 +731,7 @@ ${imgs.length ? `<h2 style="font-size:11px;letter-spacing:.18em;text-transform:u
                                   >
                                     <img src={src} alt={`Imagem ${i + 1}`} className="w-full h-20 object-cover hover:opacity-90 transition-opacity" />
                                   </button>
-                                  <button
+                                  {!readOnly && <button
                                     type="button"
                                     onClick={() =>
                                       setScriptImages((prev) => ({
@@ -717,7 +743,7 @@ ${imgs.length ? `<h2 style="font-size:11px;letter-spacing:.18em;text-transform:u
                                     title="Remover"
                                   >
                                     <X className="w-3 h-3" />
-                                  </button>
+                                  </button>}
                                 </div>
                               ))}
                             </div>
@@ -725,27 +751,29 @@ ${imgs.length ? `<h2 style="font-size:11px;letter-spacing:.18em;text-transform:u
                         </div>
                       </div>
 
-                      <div className="mt-4 flex items-center justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDuplicate(id)}
-                          className="gap-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10"
-                        >
-                          <Copy className="w-3.5 h-3.5" /> Duplicar
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() => {
-                            persist(id, true);
-                            setExpandedId(null);
-                            toast.success("Bloco salvo");
-                          }}
-                          className="bg-gradient-primary text-primary-foreground hover:opacity-90"
-                        >
-                          Confirmar bloco
-                        </Button>
-                      </div>
+                      {!readOnly && (
+                        <div className="mt-4 flex items-center justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDuplicate(id)}
+                            className="gap-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                          >
+                            <Copy className="w-3.5 h-3.5" /> Duplicar
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              persist(id, true);
+                              setExpandedId(null);
+                              toast.success("Bloco salvo");
+                            }}
+                            className="bg-gradient-primary text-primary-foreground hover:opacity-90"
+                          >
+                            Confirmar bloco
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -753,16 +781,18 @@ ${imgs.length ? `<h2 style="font-size:11px;letter-spacing:.18em;text-transform:u
             })}
           </div>
 
-          <button
-            onClick={handleAddRow}
-            className="mt-3 w-full inline-flex items-center justify-center gap-1.5 px-3 h-10 rounded-xl border border-dashed border-primary/40 bg-primary/5 text-xs font-mono uppercase tracking-[0.18em] text-primary hover:bg-primary/10 transition-colors"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            Adicionar conteúdo
-          </button>
+          {!readOnly && (
+            <button
+              onClick={handleAddRow}
+              className="mt-3 w-full inline-flex items-center justify-center gap-1.5 px-3 h-10 rounded-xl border border-dashed border-primary/40 bg-primary/5 text-xs font-mono uppercase tracking-[0.18em] text-primary hover:bg-primary/10 transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Adicionar conteúdo
+            </button>
+          )}
 
           <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground/60 text-center">
-            Clique em uma linha para abrir o editor completo · "Salvar dia" persiste todos os blocos
+            {readOnly ? "Clique em uma linha para visualizar o conteúdo" : "Clique em uma linha para abrir o editor completo · \"Salvar dia\" persiste todos os blocos"}
           </p>
         </div>
       </SheetContent>
@@ -812,10 +842,12 @@ function FieldLabel({
 function InspirationCell({
   value,
   filled,
+  readOnly = false,
   onChange,
 }: {
   value: string;
   filled: boolean;
+  readOnly?: boolean;
   onChange: (v: string) => void;
 }) {
   const [editing, setEditing] = useState(false);
@@ -848,7 +880,7 @@ function InspirationCell({
           <ExternalLink className="w-3 h-3 shrink-0" />
           <span className="truncate">{host}</span>
         </a>
-        {extra > 0 && (
+        {extra > 0 && !readOnly && (
           <button
             onClick={() => setEditing(true)}
             title={urls.slice(1).join("\n")}
@@ -857,14 +889,16 @@ function InspirationCell({
             +{extra}
           </button>
         )}
-        <button
-          onClick={() => setEditing(true)}
-          className="ml-auto text-muted-foreground hover:text-foreground p-1 rounded hover:bg-surface shrink-0"
-          title="Editar"
-          aria-label="Editar links"
-        >
-          <Pencil className="w-3 h-3" />
-        </button>
+        {!readOnly && (
+          <button
+            onClick={() => setEditing(true)}
+            className="ml-auto text-muted-foreground hover:text-foreground p-1 rounded hover:bg-surface shrink-0"
+            title="Editar"
+            aria-label="Editar links"
+          >
+            <Pencil className="w-3 h-3" />
+          </button>
+        )}
       </div>
     );
   }
@@ -874,6 +908,7 @@ function InspirationCell({
       <input
         autoFocus={editing}
         value={value}
+        readOnly={readOnly}
         onChange={(e) => onChange(e.target.value)}
         onBlur={() => setEditing(false)}
         onKeyDown={(e) => {
@@ -916,9 +951,11 @@ export function stringifyScript(s: ScriptSections): string {
 
 function RichEditor({
   value,
+  readOnly = false,
   onChange,
 }: {
   value: string;
+  readOnly?: boolean;
   onChange: (html: string) => void;
 }) {
   const sections = parseScript(value);
@@ -932,6 +969,7 @@ function RichEditor({
         placeholder="Frase de impacto inicial..."
         value={sections.hook}
         onChange={(h) => update("hook", h)}
+        readOnly={readOnly}
         minHeight={90}
       />
       <SectionEditor
@@ -939,6 +977,7 @@ function RichEditor({
         placeholder="Conteúdo principal, argumentos, exemplos..."
         value={sections.dev}
         onChange={(h) => update("dev", h)}
+        readOnly={readOnly}
         minHeight={180}
       />
       <SectionEditor
@@ -946,6 +985,7 @@ function RichEditor({
         placeholder="Chamada para ação final..."
         value={sections.cta}
         onChange={(h) => update("cta", h)}
+        readOnly={readOnly}
         minHeight={90}
       />
     </div>
@@ -957,12 +997,14 @@ function SectionEditor({
   placeholder,
   value,
   onChange,
+  readOnly = false,
   minHeight,
 }: {
   label: string;
   placeholder: string;
   value: string;
   onChange: (html: string) => void;
+  readOnly?: boolean;
   minHeight: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -1008,7 +1050,7 @@ function SectionEditor({
         <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-primary font-semibold">
           {label}
         </span>
-        <div className="flex flex-wrap items-center gap-0.5">
+        {!readOnly && <div className="flex flex-wrap items-center gap-0.5">
           {tools.map(({ icon: Icon, title, cmd, arg }) => (
             <button
               key={title}
@@ -1056,13 +1098,13 @@ function SectionEditor({
               </div>
             )}
           </div>
-        </div>
+        </div>}
       </div>
       <div
         ref={ref}
-        contentEditable
+        contentEditable={!readOnly}
         suppressContentEditableWarning
-        onInput={(e) => onChange((e.target as HTMLDivElement).innerHTML)}
+        onInput={(e) => !readOnly && onChange((e.target as HTMLDivElement).innerHTML)}
         data-placeholder={placeholder}
         style={{ minHeight }}
         className={cn(
