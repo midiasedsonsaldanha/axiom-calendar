@@ -576,7 +576,7 @@ export function DayPanel({
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                {CONTENT_TYPES.map((t) => (
+                                {[...CONTENT_TYPES].sort((a, b) => a.localeCompare(b, "pt-BR")).map((t) => (
                                   <SelectItem key={t} value={t}>{t}</SelectItem>
                                 ))}
                               </SelectContent>
