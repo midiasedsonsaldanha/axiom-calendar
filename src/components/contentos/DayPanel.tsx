@@ -28,6 +28,7 @@ import {
   Copy,
   ExternalLink,
   Flame,
+  Pencil,
   Plus,
   Sparkles,
   Trash2,
