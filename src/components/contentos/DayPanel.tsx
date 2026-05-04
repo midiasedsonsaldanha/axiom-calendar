@@ -35,6 +35,7 @@ import {
   Italic,
   List,
   ListOrdered,
+  Palette,
   Pencil,
   Plus,
   Printer,
@@ -575,7 +576,7 @@ export function DayPanel({
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                {CONTENT_TYPES.map((t) => (
+                                {[...CONTENT_TYPES].sort((a, b) => a.localeCompare(b, "pt-BR")).map((t) => (
                                   <SelectItem key={t} value={t}>{t}</SelectItem>
                                 ))}
                               </SelectContent>
@@ -911,6 +912,19 @@ function RichEditor({
     { icon: ListOrdered, title: "Lista numerada", cmd: "insertOrderedList" },
   ];
 
+  const COLORS = [
+    { name: "Padrão", value: "inherit" },
+    { name: "Vermelho", value: "#ef4444" },
+    { name: "Laranja", value: "#f97316" },
+    { name: "Amarelo", value: "#eab308" },
+    { name: "Verde", value: "#22c55e" },
+    { name: "Azul", value: "#3b82f6" },
+    { name: "Roxo", value: "#a855f7" },
+    { name: "Rosa", value: "#ec4899" },
+    { name: "Branco", value: "#ffffff" },
+  ];
+  const [showColors, setShowColors] = useState(false);
+
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap items-center gap-1 p-1 rounded-md border border-border bg-surface">
@@ -928,6 +942,39 @@ function RichEditor({
             <Icon className="w-3.5 h-3.5" />
           </button>
         ))}
+        <div className="relative">
+          <button
+            type="button"
+            onMouseDown={(e) => {
+              e.preventDefault();
+              setShowColors((v) => !v);
+            }}
+            title="Cor do texto"
+            className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-surface-elevated transition-colors flex items-center gap-1"
+          >
+            <Palette className="w-3.5 h-3.5" />
+          </button>
+          {showColors && (
+            <div className="absolute z-30 top-full left-0 mt-1 p-2 rounded-md border border-border bg-popover shadow-lg grid grid-cols-5 gap-1.5 w-[160px]">
+              {COLORS.map((c) => (
+                <button
+                  key={c.value}
+                  type="button"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    exec("foreColor", c.value);
+                    setShowColors(false);
+                  }}
+                  title={c.name}
+                  className="w-6 h-6 rounded border border-border hover:scale-110 transition-transform"
+                  style={{ background: c.value === "inherit" ? "transparent" : c.value }}
+                >
+                  {c.value === "inherit" && <span className="text-[8px] text-muted-foreground">A</span>}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
       <div
         ref={ref}
