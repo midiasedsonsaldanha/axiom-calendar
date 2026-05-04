@@ -385,32 +385,11 @@ export function DayPanel({
                     </div>
 
                     {/* Inspiração (links) */}
-                    <div className={cn("relative flex items-center", filled ? "bg-surface-elevated" : "bg-surface")}>
-                      <input
-                        value={it.plan}
-                        onChange={(e) => updateDraft(id, { plan: e.target.value })}
-                        placeholder="Cole links de inspiração..."
-                        className={cn(
-                          "flex-1 px-3 py-2 pr-8 text-xs bg-transparent outline-none focus:bg-surface focus:ring-1 focus:ring-inset focus:ring-primary/40",
-                          "placeholder:text-muted-foreground/50 placeholder:italic",
-                        )}
-                      />
-                      {(() => {
-                        const firstUrl = (it.plan || "").match(/https?:\/\/\S+/i)?.[0];
-                        if (!firstUrl) return null;
-                        return (
-                          <a
-                            href={firstUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            title={firstUrl}
-                            className="absolute right-2 inline-flex items-center justify-center w-6 h-6 rounded text-primary hover:bg-primary/10 transition-colors"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5" />
-                          </a>
-                        );
-                      })()}
-                    </div>
+                    <InspirationCell
+                      value={it.plan}
+                      filled={filled}
+                      onChange={(v) => updateDraft(id, { plan: v })}
+                    />
 
                     {/* Status */}
                     <div className={cn("px-1 py-1 flex items-center", filled ? "bg-surface-elevated" : "bg-surface")}>
@@ -642,5 +621,80 @@ function FieldLabel({
     >
       {children}
     </label>
+  );
+}
+
+function InspirationCell({
+  value,
+  filled,
+  onChange,
+}: {
+  value: string;
+  filled: boolean;
+  onChange: (v: string) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const urls = (value || "").match(/https?:\/\/\S+/gi) ?? [];
+  const hasLinks = urls.length > 0;
+
+  if (!editing && hasLinks) {
+    return (
+      <div
+        className={cn(
+          "px-2 py-1.5 flex flex-wrap items-center gap-1.5 min-h-[40px]",
+          filled ? "bg-surface-elevated" : "bg-surface",
+        )}
+      >
+        {urls.map((u, i) => {
+          let host = u;
+          try {
+            host = new URL(u).hostname.replace(/^www\./, "");
+          } catch {
+            /* noop */
+          }
+          return (
+            <a
+              key={i}
+              href={u}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={u}
+              className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-primary/15 hover:bg-primary/25 border border-primary/30 text-primary text-[10px] font-medium max-w-[140px] transition-colors"
+            >
+              <ExternalLink className="w-3 h-3 shrink-0" />
+              <span className="truncate">{host}</span>
+            </a>
+          );
+        })}
+        <button
+          onClick={() => setEditing(true)}
+          className="ml-auto text-[10px] text-muted-foreground hover:text-foreground px-1.5 py-1 rounded hover:bg-surface"
+          title="Editar"
+        >
+          editar
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn("flex items-center", filled ? "bg-surface-elevated" : "bg-surface")}>
+      <input
+        autoFocus={editing}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onBlur={() => setEditing(false)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.currentTarget.blur();
+          }
+        }}
+        placeholder="Cole links de inspiração..."
+        className={cn(
+          "flex-1 px-3 py-2 text-xs bg-transparent outline-none focus:bg-surface focus:ring-1 focus:ring-inset focus:ring-primary/40",
+          "placeholder:text-muted-foreground/50 placeholder:italic",
+        )}
+      />
+    </div>
   );
 }
