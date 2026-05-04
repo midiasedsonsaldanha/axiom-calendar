@@ -118,7 +118,7 @@ export function DayPanel({
   };
 
   const isFilled = (it: ContentItem) =>
-    !!(it.description || it.plan || it.title || it.format !== "Educativo" || it.networks.length > 0);
+    !!(it.title || it.description || it.plan || it.format !== "Educativo" || it.networks.length > 0);
 
   const persist = (slot: string) => {
     const it = drafts[slot];
