@@ -57,6 +57,7 @@ interface DayPanelProps {
   upsert: (item: ContentItem) => void;
   remove: (id: string) => void;
   duplicate: (id: string) => void;
+  readOnly?: boolean;
   onChangeIso?: (iso: string) => void;
 }
 
@@ -91,6 +92,7 @@ export function DayPanel({
   upsert,
   remove,
   duplicate,
+  readOnly = false,
   onChangeIso,
 }: DayPanelProps) {
   const date = iso ? fromIso(iso) : null;
@@ -117,7 +119,7 @@ export function DayPanel({
     if (!iso) return;
     const map: Record<string, ContentItem> = {};
     const order: string[] = [];
-    if (items.length === 0) {
+    if (items.length === 0 && !readOnly) {
       // seed defaults the first time the user opens an empty day
       TIME_SLOTS.filter((s) => s !== "Extra").forEach((slot) => {
         const it = empty(iso, slot);
@@ -134,7 +136,7 @@ export function DayPanel({
     setDrafts(map);
     setRowOrder(order);
     setExpandedId(null);
-  }, [iso, items]);
+  }, [iso, items, readOnly]);
 
   if (!iso || !date) {
     return (
@@ -148,6 +150,7 @@ export function DayPanel({
   }
 
   const updateDraft = (id: string, patch: Partial<ContentItem>) => {
+    if (readOnly) return;
     setDrafts((prev) => ({ ...prev, [id]: { ...prev[id], ...patch } }));
   };
 
@@ -195,6 +198,7 @@ export function DayPanel({
     !!(it.title || it.description || it.plan || it.script || it.networks.length > 0);
 
   const persist = (id: string, force = false) => {
+    if (readOnly) return;
     const it = drafts[id];
     if (!it) return;
     const exists = items.some((x) => x.id === it.id);
@@ -203,6 +207,7 @@ export function DayPanel({
   };
 
   const handleSaveAll = () => {
+    if (readOnly) return;
     Object.keys(drafts).forEach((id) => persist(id));
     toast.success("Dia salvo", {
       description: `${WEEKDAYS_FULL[weekday]} · ${date.toLocaleDateString("pt-BR")}`,
@@ -210,6 +215,7 @@ export function DayPanel({
   };
 
   const handleRemoveRow = (id: string) => {
+    if (readOnly) return;
     const it = drafts[id];
     if (!it) return;
     const exists = items.some((x) => x.id === it.id);
@@ -226,6 +232,7 @@ export function DayPanel({
   };
 
   const handleAddRow = () => {
+    if (readOnly) return;
     const used = Object.values(drafts).map((d) => d.time);
     const next =
       TIME_SLOTS.filter((s) => s !== "Extra").find((s) => !used.includes(s)) ?? "";
@@ -236,6 +243,7 @@ export function DayPanel({
   };
 
   const handleDuplicate = (id: string) => {
+    if (readOnly) return;
     const it = drafts[id];
     if (!it || !items.some((x) => x.id === it.id)) {
       toast.error("Salve o bloco antes de duplicar");
@@ -246,6 +254,7 @@ export function DayPanel({
   };
 
   const handleApplyTemplate = () => {
+    if (readOnly) return;
     if (!template) return;
     setDrafts((prev) => {
       const next = { ...prev };
