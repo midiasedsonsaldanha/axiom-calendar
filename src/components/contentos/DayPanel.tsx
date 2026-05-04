@@ -203,7 +203,7 @@ export function DayPanel({
   };
 
   const handleSaveAll = () => {
-    Object.keys(drafts).forEach(persist);
+    Object.keys(drafts).forEach((id) => persist(id));
     toast.success("Dia salvo", {
       description: `${WEEKDAYS_FULL[weekday]} · ${date.toLocaleDateString("pt-BR")}`,
     });
