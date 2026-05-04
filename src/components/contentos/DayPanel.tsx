@@ -880,6 +880,29 @@ function InspirationCell({
   );
 }
 
+export type ScriptSections = { hook: string; dev: string; cta: string };
+
+export function parseScript(value: string): ScriptSections {
+  if (!value) return { hook: "", dev: "", cta: "" };
+  try {
+    const parsed = JSON.parse(value);
+    if (parsed && typeof parsed === "object" && "hook" in parsed) {
+      return {
+        hook: parsed.hook || "",
+        dev: parsed.dev || "",
+        cta: parsed.cta || "",
+      };
+    }
+  } catch {
+    /* legacy plain html */
+  }
+  return { hook: "", dev: value, cta: "" };
+}
+
+export function stringifyScript(s: ScriptSections): string {
+  return JSON.stringify(s);
+}
+
 function RichEditor({
   value,
   onChange,
@@ -887,9 +910,52 @@ function RichEditor({
   value: string;
   onChange: (html: string) => void;
 }) {
+  const sections = parseScript(value);
+  const update = (key: keyof ScriptSections, html: string) => {
+    onChange(stringifyScript({ ...sections, [key]: html }));
+  };
+  return (
+    <div className="space-y-3">
+      <SectionEditor
+        label="HOOK"
+        placeholder="Frase de impacto inicial..."
+        value={sections.hook}
+        onChange={(h) => update("hook", h)}
+        minHeight={90}
+      />
+      <SectionEditor
+        label="DESENVOLVIMENTO"
+        placeholder="Conteúdo principal, argumentos, exemplos..."
+        value={sections.dev}
+        onChange={(h) => update("dev", h)}
+        minHeight={180}
+      />
+      <SectionEditor
+        label="CTA"
+        placeholder="Chamada para ação final..."
+        value={sections.cta}
+        onChange={(h) => update("cta", h)}
+        minHeight={90}
+      />
+    </div>
+  );
+}
+
+function SectionEditor({
+  label,
+  placeholder,
+  value,
+  onChange,
+  minHeight,
+}: {
+  label: string;
+  placeholder: string;
+  value: string;
+  onChange: (html: string) => void;
+  minHeight: number;
+}) {
   const ref = useRef<HTMLDivElement>(null);
 
-  // initialize / sync only when external value changes and differs from DOM
   useEffect(() => {
     if (ref.current && ref.current.innerHTML !== (value || "")) {
       ref.current.innerHTML = value || "";
@@ -926,54 +992,59 @@ function RichEditor({
   const [showColors, setShowColors] = useState(false);
 
   return (
-    <div className="space-y-2">
-      <div className="flex flex-wrap items-center gap-1 p-1 rounded-md border border-border bg-surface">
-        {tools.map(({ icon: Icon, title, cmd, arg }) => (
-          <button
-            key={title}
-            type="button"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              exec(cmd, arg);
-            }}
-            title={title}
-            className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-surface-elevated transition-colors"
-          >
-            <Icon className="w-3.5 h-3.5" />
-          </button>
-        ))}
-        <div className="relative">
-          <button
-            type="button"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              setShowColors((v) => !v);
-            }}
-            title="Cor do texto"
-            className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-surface-elevated transition-colors flex items-center gap-1"
-          >
-            <Palette className="w-3.5 h-3.5" />
-          </button>
-          {showColors && (
-            <div className="absolute z-30 top-full left-0 mt-1 p-2 rounded-md border border-border bg-popover shadow-lg grid grid-cols-5 gap-1.5 w-[160px]">
-              {COLORS.map((c) => (
-                <button
-                  key={c.value}
-                  type="button"
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    exec("foreColor", c.value);
-                    setShowColors(false);
-                  }}
-                  title={c.name}
-                  className="w-6 h-6 rounded border border-border hover:scale-110 transition-transform"
-                  style={{ background: c.value === "inherit" ? "transparent" : c.value }}
-                >
-                  {c.value === "inherit" && <span className="text-[8px] text-muted-foreground">A</span>}
-                </button>
-              ))}
-            </div>
-          )}
+    <div className="rounded-md border border-border bg-surface overflow-hidden">
+      <div className="flex items-center justify-between gap-2 px-2 py-1 border-b border-border bg-surface-elevated">
+        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-primary font-semibold">
+          {label}
+        </span>
+        <div className="flex flex-wrap items-center gap-0.5">
+          {tools.map(({ icon: Icon, title, cmd, arg }) => (
+            <button
+              key={title}
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                exec(cmd, arg);
+              }}
+              title={title}
+              className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+            >
+              <Icon className="w-3 h-3" />
+            </button>
+          ))}
+          <div className="relative">
+            <button
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                setShowColors((v) => !v);
+              }}
+              title="Cor do texto"
+              className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-surface transition-colors"
+            >
+              <Palette className="w-3 h-3" />
+            </button>
+            {showColors && (
+              <div className="absolute z-30 top-full right-0 mt-1 p-2 rounded-md border border-border bg-popover shadow-lg grid grid-cols-5 gap-1.5 w-[160px]">
+                {COLORS.map((c) => (
+                  <button
+                    key={c.value}
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      exec("foreColor", c.value);
+                      setShowColors(false);
+                    }}
+                    title={c.name}
+                    className="w-6 h-6 rounded border border-border hover:scale-110 transition-transform"
+                    style={{ background: c.value === "inherit" ? "transparent" : c.value }}
+                  >
+                    {c.value === "inherit" && <span className="text-[8px] text-muted-foreground">A</span>}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
       <div
@@ -981,10 +1052,11 @@ function RichEditor({
         contentEditable
         suppressContentEditableWarning
         onInput={(e) => onChange((e.target as HTMLDivElement).innerHTML)}
-        data-placeholder="Hook · desenvolvimento · CTA..."
+        data-placeholder={placeholder}
+        style={{ minHeight }}
         className={cn(
-          "min-h-[260px] rounded-md border border-border bg-white text-neutral-900 px-3 py-2 text-xs leading-relaxed",
-          "focus:outline-none focus:ring-1 focus:ring-primary/40",
+          "bg-white text-neutral-900 px-3 py-2 text-xs leading-relaxed",
+          "focus:outline-none focus:ring-1 focus:ring-inset focus:ring-primary/40",
           "[&_h3]:text-base [&_h3]:font-semibold [&_h3]:my-1",
           "[&_blockquote]:border-l-2 [&_blockquote]:border-primary/40 [&_blockquote]:pl-3 [&_blockquote]:italic [&_blockquote]:text-neutral-600",
           "[&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5",
