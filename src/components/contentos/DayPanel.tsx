@@ -85,6 +85,8 @@ export function DayPanel({
 
   // local drafts: one per slot — keyed by slot
   const [drafts, setDrafts] = useState<Record<string, ContentItem>>({});
+  // remembers the status before "auto-postado" was applied via "todas redes marcadas"
+  const [prevStatus, setPrevStatus] = useState<Record<string, ContentStatus>>({});
   // expanded row for full editor (script/description)
   const [expandedSlot, setExpandedSlot] = useState<string | null>(null);
 
