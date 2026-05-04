@@ -148,12 +148,13 @@ export function CalendarView({ items, onPickDay, onCopyWeek }: CalendarViewProps
           const isToday = isSameDay(d, today);
           const list = byDate.get(iso) ?? [];
           const hasSales = false;
-          const isComplete =
-            list.length > 0 &&
-            list.every((it) => it.status === "scheduled" || it.status === "posted");
+          const scheduledCount = list.filter(
+            (it) => it.status === "scheduled" || it.status === "posted",
+          ).length;
+          const isComplete = list.length > 0 && scheduledCount === list.length;
 
-          // intensity bar 0..1
-          const intensity = Math.min(list.length / 5, 1);
+          // intensity bar reflects scheduled progress
+          const intensity = list.length > 0 ? scheduledCount / list.length : 0;
 
           return (
             <button
