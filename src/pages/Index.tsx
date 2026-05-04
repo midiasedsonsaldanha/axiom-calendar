@@ -52,9 +52,12 @@ const Index = () => {
       toast.error("Você tem acesso somente de leitura nesta agenda"),
     );
   };
-  const upsert = isReadOnly ? (() => blockWrite()) as typeof store.upsert : store.upsert;
-  const remove = isReadOnly ? (() => blockWrite()) as typeof store.remove : store.remove;
-  const duplicate = isReadOnly ? (() => blockWrite()) as typeof store.duplicate : store.duplicate;
+  const blockAsync = async () => {
+    blockWrite();
+  };
+  const upsert = isReadOnly ? (blockAsync as typeof store.upsert) : store.upsert;
+  const remove = isReadOnly ? (blockAsync as typeof store.remove) : store.remove;
+  const duplicate = isReadOnly ? (blockAsync as typeof store.duplicate) : store.duplicate;
   const copyWeek = isReadOnly
     ? (((..._args: Parameters<typeof store.copyWeek>) => {
         blockWrite();
