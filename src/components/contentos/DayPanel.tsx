@@ -677,37 +677,9 @@ ${imgs.length ? `<h2>Imagens</h2><div class="imgs">${imgs.map((u) => `<img src="
                               </button>
                             </div>
                           </div>
-                          <div className="flex flex-wrap items-center gap-1 p-1 rounded-md border border-border bg-surface">
-                            {[
-                              { icon: Bold, title: "Negrito", fn: () => applyFormat(id, "wrap", "**") },
-                              { icon: Italic, title: "Itálico", fn: () => applyFormat(id, "wrap", "*") },
-                              { icon: Underline, title: "Sublinhado", fn: () => applyFormat(id, "wrap", "__") },
-                              { icon: Heading, title: "Título", fn: () => applyFormat(id, "line", "## ") },
-                              { icon: Quote, title: "Citação", fn: () => applyFormat(id, "line", "> ") },
-                              { icon: List, title: "Lista", fn: () => applyFormat(id, "line", "- ") },
-                              { icon: ListOrdered, title: "Lista numerada", fn: () => applyFormat(id, "line", "{n}. ") },
-                            ].map(({ icon: Icon, title, fn }) => (
-                              <button
-                                key={title}
-                                type="button"
-                                onClick={fn}
-                                title={title}
-                                className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-surface-elevated transition-colors"
-                              >
-                                <Icon className="w-3.5 h-3.5" />
-                              </button>
-                            ))}
-                          </div>
-                          <Textarea
-                            ref={(el) => {
-                              if (el) scriptRefs.set(id, el);
-                              else scriptRefs.delete(id);
-                            }}
+                          <RichEditor
                             value={it.script}
-                            onChange={(e) => updateDraft(id, { script: e.target.value })}
-                            rows={11}
-                            placeholder="Hook · desenvolvimento · CTA... (use a barra de formatação acima)"
-                            className="bg-surface border-border focus-visible:ring-primary/40 font-mono text-xs leading-relaxed resize-none"
+                            onChange={(html) => updateDraft(id, { script: html })}
                           />
                           {(scriptImages[id]?.length ?? 0) > 0 && (
                             <div className="grid grid-cols-3 gap-2">
