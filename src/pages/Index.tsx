@@ -215,6 +215,8 @@ const Index = () => {
         duplicate={duplicate}
         onChangeIso={(iso) => setPickedDay(iso)}
       />
+
+      <ShareDialog open={shareOpen} onOpenChange={setShareOpen} />
     </div>
   );
 };
