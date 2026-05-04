@@ -649,23 +649,34 @@ export function DayPanel({
                                     s.replace(/[&<>]/g, (c) =>
                                       c === "&" ? "&amp;" : c === "<" ? "&lt;" : "&gt;",
                                     );
+                                  const sec = parseScript(it.script);
                                   w.document.write(`<!doctype html><html><head><meta charset="utf-8"/><title>Roteiro — ${esc(it.title || "Sem título")}</title>
 <style>
-  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:32px;color:#111;line-height:1.55;max-width:780px;margin:0 auto;}
-  h1{font-size:22px;margin:0 0 4px;}
-  .meta{color:#666;font-size:12px;margin-bottom:24px;}
-  h2{font-size:13px;text-transform:uppercase;letter-spacing:.15em;color:#666;margin:24px 0 8px;border-bottom:1px solid #eee;padding-bottom:4px;}
-  pre{white-space:pre-wrap;word-wrap:break-word;font-family:inherit;font-size:14px;margin:0;}
-  .imgs{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:8px;}
+  @page{size:A4;margin:14mm;}
+  *{box-sizing:border-box;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#111;line-height:1.45;margin:0;}
+  h1{font-size:20px;margin:0 0 4px;}
+  .meta{color:#666;font-size:11px;margin-bottom:14px;}
+  .sections{display:flex;flex-direction:column;gap:10px;}
+  .section{border:1.5px solid #111;border-radius:8px;padding:10px 12px;page-break-inside:avoid;}
+  .section h2{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#fff;background:#111;display:inline-block;padding:3px 8px;border-radius:4px;margin:0 0 8px;}
+  .section .body{font-size:12.5px;}
+  .section .body :first-child{margin-top:0;}
+  .section .body :last-child{margin-bottom:0;}
+  .imgs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px;}
   .imgs img{width:100%;height:auto;border-radius:6px;border:1px solid #eee;}
   @media print{body{padding:0;}}
 </style>
 </head><body>
 <h1>${esc(it.title || "Sem título")}</h1>
 <div class="meta">${esc(it.date)} · ${esc(it.time)} · ${esc(it.type)} · ${esc(it.format)}</div>
-${it.description ? `<h2>Descrição</h2><pre>${esc(it.description)}</pre>` : ""}
-${it.script ? `<h2>Roteiro</h2><div>${it.script}</div>` : ""}
-${imgs.length ? `<h2>Imagens</h2><div class="imgs">${imgs.map((u) => `<img src="${u}"/>`).join("")}</div>` : ""}
+${it.description ? `<div class="meta"><strong>Descrição:</strong> ${esc(it.description)}</div>` : ""}
+<div class="sections">
+  <div class="section"><h2>Hook</h2><div class="body">${sec.hook || "<em style='color:#999'>—</em>"}</div></div>
+  <div class="section"><h2>Desenvolvimento</h2><div class="body">${sec.dev || "<em style='color:#999'>—</em>"}</div></div>
+  <div class="section"><h2>CTA</h2><div class="body">${sec.cta || "<em style='color:#999'>—</em>"}</div></div>
+</div>
+${imgs.length ? `<h2 style="font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#666;margin:14px 0 6px;">Imagens</h2><div class="imgs">${imgs.map((u) => `<img src="${u}"/>`).join("")}</div>` : ""}
 <script>window.onload=()=>setTimeout(()=>window.print(),300);<\/script>
 </body></html>`);
                                   w.document.close();
