@@ -103,6 +103,10 @@ export function DayPanel({
   const [prevStatus, setPrevStatus] = useState<Record<string, ContentStatus>>({});
   // images uploaded per row (data URLs, in-memory only)
   const [scriptImages, setScriptImages] = useState<Record<string, string[]>>({});
+  // image lightbox preview
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  // refs to script textareas for formatting buttons
+  const scriptRefs = useState(() => new Map<string, HTMLTextAreaElement | null>())[0];
   // expanded row for full editor (script/description)
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
