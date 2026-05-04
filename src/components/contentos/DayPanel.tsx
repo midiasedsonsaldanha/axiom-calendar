@@ -842,10 +842,12 @@ function FieldLabel({
 function InspirationCell({
   value,
   filled,
+  readOnly = false,
   onChange,
 }: {
   value: string;
   filled: boolean;
+  readOnly?: boolean;
   onChange: (v: string) => void;
 }) {
   const [editing, setEditing] = useState(false);
@@ -878,7 +880,7 @@ function InspirationCell({
           <ExternalLink className="w-3 h-3 shrink-0" />
           <span className="truncate">{host}</span>
         </a>
-        {extra > 0 && (
+        {extra > 0 && !readOnly && (
           <button
             onClick={() => setEditing(true)}
             title={urls.slice(1).join("\n")}
@@ -887,14 +889,16 @@ function InspirationCell({
             +{extra}
           </button>
         )}
-        <button
-          onClick={() => setEditing(true)}
-          className="ml-auto text-muted-foreground hover:text-foreground p-1 rounded hover:bg-surface shrink-0"
-          title="Editar"
-          aria-label="Editar links"
-        >
-          <Pencil className="w-3 h-3" />
-        </button>
+        {!readOnly && (
+          <button
+            onClick={() => setEditing(true)}
+            className="ml-auto text-muted-foreground hover:text-foreground p-1 rounded hover:bg-surface shrink-0"
+            title="Editar"
+            aria-label="Editar links"
+          >
+            <Pencil className="w-3 h-3" />
+          </button>
+        )}
       </div>
     );
   }
@@ -904,6 +908,7 @@ function InspirationCell({
       <input
         autoFocus={editing}
         value={value}
+        readOnly={readOnly}
         onChange={(e) => onChange(e.target.value)}
         onBlur={() => setEditing(false)}
         onKeyDown={(e) => {
