@@ -40,13 +40,14 @@ const fromRow = (r: DbRow): ContentItem => ({
   createdAt: new Date(r.created_at).getTime(),
 });
 
-export function useContentStore() {
+export function useContentStore(ownerId?: string) {
   const { user } = useAuth();
+  const effectiveOwnerId = ownerId ?? user?.id;
   const [items, setItems] = useState<ContentItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   const reload = useCallback(async () => {
-    if (!user) {
+    if (!user || !effectiveOwnerId) {
       setItems([]);
       setLoading(false);
       return;
@@ -54,6 +55,7 @@ export function useContentStore() {
     const { data, error } = await supabase
       .from("content_items")
       .select("*")
+      .eq("user_id", effectiveOwnerId)
       .order("date", { ascending: true });
     if (error) {
       toast.error("Erro ao carregar conteúdos");
