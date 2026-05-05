@@ -21,6 +21,7 @@ export type ContentType =
   | "Família"
   | "tbt"
   | "Notícia"
+  | "Evento"
   | "Expedy"
   | "Avantpro"
   | "UpSeller"
