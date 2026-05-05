@@ -370,6 +370,8 @@ export function DayPanel({
 
         {/* Grid */}
         <div className="px-4 md:px-6 py-5">
+          <div className="overflow-x-auto -mx-4 md:mx-0 px-4 md:px-0">
+            <div className="min-w-[860px]">
           {/* Column header */}
             <div className="grid grid-cols-[88px_minmax(0,1.5fr)_120px_minmax(0,1.2fr)_140px_180px_44px] gap-px rounded-t-xl overflow-hidden border border-border bg-border">
             <HeaderCell>Horário</HeaderCell>
@@ -779,6 +781,8 @@ ${imgs.length ? `<h2 style="font-size:11px;letter-spacing:.18em;text-transform:u
                 </div>
               );
             })}
+          </div>
+            </div>
           </div>
 
           {!readOnly && (

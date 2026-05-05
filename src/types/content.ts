@@ -21,6 +21,7 @@ export type ContentType =
   | "Família"
   | "tbt"
   | "Notícia"
+  | "Evento"
   | "Expedy"
   | "Avantpro"
   | "UpSeller"
@@ -55,6 +56,7 @@ export const CONTENT_TYPES: ContentType[] = [
   "Família",
   "tbt",
   "Notícia",
+  "Evento",
   "Expedy",
   "Avantpro",
   "UpSeller",
