@@ -208,8 +208,10 @@ function MediaSection({ title, items, isVideo, isStory }: { title: string; items
                   </>
                 ) : (
                   <>
-                    <Metric icon={Eye} value={m.insights?.reach} />
-                    {m.insights?.views != null && <Metric icon={Play} value={m.insights?.views} />}
+                    {m.insights?.views != null && <Metric icon={Eye} value={m.insights?.views} />}
+                    {m.insights?.reach != null && m.insights?.views == null && (
+                      <Metric icon={Eye} value={m.insights?.reach} />
+                    )}
                     <Metric icon={Heart} value={m.insights?.likes ?? m.like_count} />
                     <Metric icon={MessageCircle} value={m.insights?.comments ?? m.comments_count} />
                     <Metric icon={Bookmark} value={m.insights?.saved} />

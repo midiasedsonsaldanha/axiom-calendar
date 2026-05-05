@@ -56,7 +56,7 @@ Deno.serve(async (req) => {
           let metric: string;
           if (isStory) metric = "reach,replies,views";
           else if (isVideo) metric = "reach,views,likes,comments,saved,shares";
-          else metric = "reach,likes,comments,saved,shares";
+          else metric = "views,likes,comments,saved,shares";
 
           const ins = await ig(`/${m.id}/insights`, token, { metric });
           const flat: Record<string, number> = {};
