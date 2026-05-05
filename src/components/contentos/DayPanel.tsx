@@ -782,6 +782,8 @@ ${imgs.length ? `<h2 style="font-size:11px;letter-spacing:.18em;text-transform:u
               );
             })}
           </div>
+            </div>
+          </div>
 
           {!readOnly && (
             <button
