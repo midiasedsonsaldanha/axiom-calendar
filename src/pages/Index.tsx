@@ -128,6 +128,22 @@ const Index = () => {
             >
               <CalendarDays className="w-4 h-4" />
             </button>
+            <button
+              onClick={() => setView("insights")}
+              className={cn(
+                "p-1.5 rounded-md",
+                view === "insights" ? "bg-primary/15 text-primary" : "text-muted-foreground",
+              )}
+            >
+              <BarChart3 className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setShareOpen(true)}
+              className="p-1.5 rounded-md text-muted-foreground"
+              aria-label="Compartilhar"
+            >
+              <Share2 className="w-4 h-4" />
+            </button>
           </div>
 
           {view === "calendar" && (
