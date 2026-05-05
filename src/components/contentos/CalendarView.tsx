@@ -152,7 +152,11 @@ export function CalendarView({ items, onPickDay, onCopyWeek, readOnly = false }:
           const scheduledCount = list.filter(
             (it) => it.status === "scheduled" || it.status === "posted",
           ).length;
-          const isComplete = list.length > 0 && scheduledCount === list.length;
+          const TOTAL_NETWORKS = 9;
+          const allNetworksMarked =
+            list.length > 0 &&
+            list.every((it) => (it.networks?.length ?? 0) >= TOTAL_NETWORKS);
+          const isComplete = allNetworksMarked;
 
           // intensity bar reflects scheduled progress
           const intensity = list.length > 0 ? scheduledCount / list.length : 0;

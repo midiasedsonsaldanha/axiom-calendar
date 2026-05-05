@@ -12,7 +12,7 @@ import {
   type ContentStatus,
   type ContentType,
 } from "@/types/content";
-import { Filter, Search, LayoutDashboard, CalendarDays, Sparkles, Share2, Eye } from "lucide-react";
+import { Filter, Search, LayoutDashboard, CalendarDays, Sparkles, Share2, Eye, BarChart3 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -128,6 +128,22 @@ const Index = () => {
             >
               <CalendarDays className="w-4 h-4" />
             </button>
+            <button
+              onClick={() => setView("insights")}
+              className={cn(
+                "p-1.5 rounded-md",
+                view === "insights" ? "bg-primary/15 text-primary" : "text-muted-foreground",
+              )}
+            >
+              <BarChart3 className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setShareOpen(true)}
+              className="p-1.5 rounded-md text-muted-foreground"
+              aria-label="Compartilhar"
+            >
+              <Share2 className="w-4 h-4" />
+            </button>
           </div>
 
           {view === "calendar" && (
@@ -213,6 +229,71 @@ const Index = () => {
             </p>
           )}
         </header>
+
+        {/* Mobile sub-bar */}
+        <div className="md:hidden border-b border-border bg-background/80 backdrop-blur-xl px-4 py-2 flex flex-col gap-2">
+          {calendars.length > 1 && (
+            <Select
+              value={currentOwnerId ?? ""}
+              onValueChange={(v) => setActiveOwnerId(v)}
+            >
+              <SelectTrigger className="h-9 w-full bg-surface border-border text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {calendars.map((c) => (
+                  <SelectItem key={c.ownerId} value={c.ownerId}>
+                    {c.role === "owner" ? "Minha agenda" : c.email}
+                    {c.role === "viewer" && " (leitor)"}
+                    {c.role === "editor" && " (editor)"}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+          {isReadOnly && (
+            <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+              <Eye className="w-3 h-3" /> somente leitura
+            </span>
+          )}
+          {view === "calendar" && (
+            <>
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar título, produto..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-9 h-9 bg-surface border-border focus-visible:ring-primary/40"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <Select value={filterType} onValueChange={(v) => setFilterType(v as any)}>
+                  <SelectTrigger className="h-9 flex-1 bg-surface border-border text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os tipos</SelectItem>
+                    {[...CONTENT_TYPES].sort((a, b) => a.localeCompare(b, "pt-BR")).map((t) => (
+                      <SelectItem key={t} value={t}>{t}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={filterStatus} onValueChange={(v) => setFilterStatus(v as any)}>
+                  <SelectTrigger className="h-9 flex-1 bg-surface border-border text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os status</SelectItem>
+                    {STATUS_ORDER.map((s) => (
+                      <SelectItem key={s} value={s}>{STATUS_META[s].label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </>
+          )}
+        </div>
 
         <main className="flex-1 p-4 md:p-8 max-w-[1400px] w-full mx-auto">
           {view === "dashboard" ? (
