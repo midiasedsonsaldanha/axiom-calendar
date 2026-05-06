@@ -95,6 +95,10 @@ export function CalendarView({ items, onPickDay, onCopyMonth, onMoveItem, readOn
             variant="ghost"
             size="icon"
             onClick={goPrev}
+            onDragEnter={() => armNavOnDrag("prev")}
+            onDragOver={(e) => e.preventDefault()}
+            onDragLeave={cancelNavOnDrag}
+            onDrop={cancelNavOnDrag}
             className="h-8 w-8 hover:bg-surface-elevated hover:text-primary"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -109,6 +113,10 @@ export function CalendarView({ items, onPickDay, onCopyMonth, onMoveItem, readOn
             variant="ghost"
             size="icon"
             onClick={goNext}
+            onDragEnter={() => armNavOnDrag("next")}
+            onDragOver={(e) => e.preventDefault()}
+            onDragLeave={cancelNavOnDrag}
+            onDrop={cancelNavOnDrag}
             className="h-8 w-8 hover:bg-surface-elevated hover:text-primary"
           >
             <ChevronRight className="w-4 h-4" />
