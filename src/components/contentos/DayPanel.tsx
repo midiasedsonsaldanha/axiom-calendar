@@ -397,7 +397,7 @@ export function DayPanel({
                 <div key={id}>
                   <div
                     className={cn(
-                      "grid grid-cols-[88px_minmax(0,1.5fr)_120px_minmax(0,1.2fr)_140px_180px_44px] gap-px bg-border",
+                      "grid grid-cols-[88px_130px_minmax(0,1.5fr)_120px_minmax(0,1.2fr)_140px_180px_44px] gap-px bg-border",
                       !isLast && "border-b border-border",
                     )}
                   >
