@@ -35,7 +35,7 @@ export function Dashboard({ items, onJumpCalendar }: DashboardProps) {
   );
 
   const total = monthItems.length;
-  const sales = 0;
+  const sales = monthItems.filter((i) => i.salesFocus).length;
   const posted = monthItems.filter((i) => i.status === "posted").length;
 
   const byType = useMemo(() => {
