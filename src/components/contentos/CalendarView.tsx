@@ -176,7 +176,7 @@ export function CalendarView({ items, onPickDay, onCopyMonth, onMoveItem, readOn
           const isOther = d.getMonth() !== month;
           const isToday = isSameDay(d, today);
           const list = byDate.get(iso) ?? [];
-          const hasSales = false;
+          const hasSales = list.some((it) => it.salesFocus);
           const postedCount = list.filter((it) => it.status === "posted").length;
           const TOTAL_NETWORKS = 9;
           const allNetworksMarked =

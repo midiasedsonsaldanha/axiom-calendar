@@ -43,6 +43,7 @@ export interface ContentItem {
   script: string;
   status: ContentStatus;
   networks: string[]; // ["IG","FB","YT",...]
+  salesFocus?: boolean; // marca o conteúdo como "FOCO EM VENDAS"
   createdAt: number;
 }
 

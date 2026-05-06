@@ -274,7 +274,7 @@ export function DayPanel({
   };
 
   const dayCount = items.length;
-  const hasSales = false;
+  const hasSales = Object.values(drafts).some((d) => d.salesFocus);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -578,10 +578,26 @@ export function DayPanel({
                     {/* Actions */}
                     <div
                       className={cn(
-                        "flex items-center justify-center",
+                        "flex items-center justify-center gap-1",
                         filled ? "bg-surface-elevated" : "bg-surface",
                       )}
                     >
+                      {!readOnly && (
+                        <button
+                          onClick={() => {
+                            updateDraft(id, { salesFocus: !it.salesFocus });
+                          }}
+                          className={cn(
+                            "p-1.5 rounded-md transition-colors",
+                            it.salesFocus
+                              ? "text-primary bg-primary/15 hover:bg-primary/25"
+                              : "text-muted-foreground/60 hover:text-primary hover:bg-primary/10",
+                          )}
+                          title={it.salesFocus ? "Remover FOCO EM VENDAS" : "Marcar como FOCO EM VENDAS"}
+                        >
+                          <Flame className="w-3.5 h-3.5" strokeWidth={2.5} />
+                        </button>
+                      )}
                       {!readOnly && (
                         <button
                           onClick={() => handleRemoveRow(id)}
@@ -592,6 +608,7 @@ export function DayPanel({
                         </button>
                       )}
                     </div>
+
                   </div>
 
                   {/* Expanded editor for this row */}
