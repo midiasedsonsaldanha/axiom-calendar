@@ -161,15 +161,32 @@ export function CalendarView({ items, onPickDay, onCopyMonth, onMoveItem, readOn
           const intensity = list.length > 0 ? postedCount / list.length : 0;
 
           return (
-            <button
+            <div
               key={iso}
               onClick={() => onPickDay(iso)}
+              onDragOver={(e) => {
+                if (readOnly || !onMoveItem) return;
+                e.preventDefault();
+                e.dataTransfer.dropEffect = "move";
+                if (dragOverIso !== iso) setDragOverIso(iso);
+              }}
+              onDragLeave={() => {
+                if (dragOverIso === iso) setDragOverIso(null);
+              }}
+              onDrop={(e) => {
+                if (readOnly || !onMoveItem) return;
+                e.preventDefault();
+                const id = e.dataTransfer.getData("text/plain");
+                setDragOverIso(null);
+                if (id) onMoveItem(id, iso);
+              }}
               className={cn(
-                "day-card text-left",
+                "day-card text-left cursor-pointer",
                 isOther && "is-other-month",
                 isToday && "is-today",
                 hasSales && "is-focus-sales",
                 isComplete && "is-complete",
+                dragOverIso === iso && "ring-2 ring-primary/70",
               )}
             >
               <div className="flex items-start justify-between mb-1.5">
@@ -202,14 +219,28 @@ export function CalendarView({ items, onPickDay, onCopyMonth, onMoveItem, readOn
               </div>
 
               <div className="space-y-1">
-                {list.slice(0, 3).map((it) => {
+                {list.map((it) => {
                   const meta = STATUS_META[it.status];
+                  const draggable = !readOnly && !!onMoveItem;
                   return (
                     <div
                       key={it.id}
+                      draggable={draggable}
+                      onDragStart={(e) => {
+                        if (!draggable) return;
+                        e.stopPropagation();
+                        e.dataTransfer.setData("text/plain", it.id);
+                        e.dataTransfer.effectAllowed = "move";
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onPickDay(iso);
+                      }}
+                      title={it.title || it.type}
                       className={cn(
                         "flex items-center gap-1.5 px-1.5 py-1 rounded-md text-[11px] truncate",
                         meta.bg,
+                        draggable && "cursor-grab active:cursor-grabbing",
                       )}
                     >
                       <span className={cn("status-dot shrink-0", meta.dot)} />
@@ -217,13 +248,8 @@ export function CalendarView({ items, onPickDay, onCopyMonth, onMoveItem, readOn
                     </div>
                   );
                 })}
-                {list.length > 3 && (
-                  <div className="text-[10px] font-mono text-muted-foreground pl-1">
-                    +{list.length - 3} mais
-                  </div>
-                )}
               </div>
-            </button>
+            </div>
           );
         })}
       </div>
