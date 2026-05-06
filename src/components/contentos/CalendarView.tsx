@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, Plus, Copy, Flame } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, Plus, Copy, Flame, CalendarIcon, MoveRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   buildMonthGrid,
@@ -8,11 +8,14 @@ import {
   toIso,
   WEEKDAYS_SHORT,
   startOfWeekSunday,
+  fromIso,
 } from "@/lib/date";
 import type { ContentItem } from "@/types/content";
 import { STATUS_META, TIME_SLOTS } from "@/types/content";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Calendar } from "@/components/ui/calendar";
 
 interface CalendarViewProps {
   items: ContentItem[];
