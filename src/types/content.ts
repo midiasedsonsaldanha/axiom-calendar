@@ -59,7 +59,7 @@ export const CONTENT_TYPES: ContentType[] = [
   "Evento",
   "Expedy",
   "Avantpro",
-  "UpSeller",
+  "Nicho",
   "Shopee Oficial",
 ];
 
