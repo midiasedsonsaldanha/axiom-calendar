@@ -280,7 +280,7 @@ export function DayPanel({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-[980px] p-0 bg-background border-l border-border overflow-y-auto"
+        className="w-full sm:max-w-[min(1400px,60vw)] p-0 bg-background border-l border-border overflow-y-auto"
       >
         {/* Sticky header */}
         <div className="sticky top-0 z-20 backdrop-blur-xl bg-background/90 border-b border-border">
