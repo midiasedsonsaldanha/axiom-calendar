@@ -373,8 +373,9 @@ export function DayPanel({
           <div className="overflow-x-auto -mx-4 md:mx-0 px-4 md:px-0">
             <div className="min-w-[860px]">
           {/* Column header */}
-            <div className="grid grid-cols-[88px_minmax(0,1.5fr)_120px_minmax(0,1.2fr)_140px_180px_44px] gap-px rounded-t-xl overflow-hidden border border-border bg-border">
+            <div className="grid grid-cols-[88px_130px_minmax(0,1.5fr)_120px_minmax(0,1.2fr)_140px_180px_44px] gap-px rounded-t-xl overflow-hidden border border-border bg-border">
             <HeaderCell>Horário</HeaderCell>
+            <HeaderCell>Tipo</HeaderCell>
             <HeaderCell>Título / Hook</HeaderCell>
             <HeaderCell>Formato</HeaderCell>
             <HeaderCell>Inspiração</HeaderCell>
