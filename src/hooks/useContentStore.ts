@@ -19,6 +19,7 @@ interface DbRow {
   script: string;
   status: ContentStatus;
   networks: string[];
+  sales_focus: boolean | null;
   created_at: string;
   updated_at: string;
 }
@@ -37,6 +38,7 @@ const fromRow = (r: DbRow): ContentItem => ({
   script: r.script,
   status: r.status,
   networks: r.networks ?? [],
+  salesFocus: r.sales_focus ?? false,
   createdAt: new Date(r.created_at).getTime(),
 });
 
@@ -112,6 +114,7 @@ export function useContentStore(ownerId?: string, canWrite = true) {
         script: item.script,
         status: item.status,
         networks: item.networks,
+        sales_focus: item.salesFocus ?? false,
       };
 
       const { error } = await supabase

@@ -48,6 +48,7 @@ export type Database = {
           networks: string[]
           plan: string
           product: string
+          sales_focus: boolean
           script: string
           slot: string
           status: string
@@ -66,6 +67,7 @@ export type Database = {
           networks?: string[]
           plan?: string
           product?: string
+          sales_focus?: boolean
           script?: string
           slot?: string
           status?: string
@@ -84,6 +86,7 @@ export type Database = {
           networks?: string[]
           plan?: string
           product?: string
+          sales_focus?: boolean
           script?: string
           slot?: string
           status?: string

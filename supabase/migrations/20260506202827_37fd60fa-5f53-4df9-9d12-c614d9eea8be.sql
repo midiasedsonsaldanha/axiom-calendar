@@ -1,0 +1,1 @@
+ALTER TABLE public.content_items ADD COLUMN IF NOT EXISTS sales_focus boolean NOT NULL DEFAULT false;
