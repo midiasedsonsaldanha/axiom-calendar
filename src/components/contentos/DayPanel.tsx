@@ -697,7 +697,7 @@ export function DayPanel({
 </head><body>
 <h1>${esc(it.title || "Sem título")}</h1>
 <div class="meta">${esc(it.date)} · ${esc(it.time)} · ${esc(it.type)} · ${esc(it.format)}</div>
-${it.description ? `<div class="meta"><strong>Descrição:</strong> ${esc(it.description)}</div>` : ""}
+
 <div class="sections">
   <div class="section"><h2>Hook</h2><div class="body">${sec.hook || "<em style='color:#999'>—</em>"}</div></div>
   <div class="section"><h2>Desenvolvimento</h2><div class="body">${sec.dev || "<em style='color:#999'>—</em>"}</div></div>
