@@ -1069,6 +1069,27 @@ function SectionEditor({
               <Icon className="w-3 h-3" />
             </button>
           ))}
+          <select
+            onMouseDown={(e) => e.stopPropagation()}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (!v) return;
+              exec("fontSize", v);
+              e.target.value = "";
+            }}
+            title="Tamanho da fonte"
+            defaultValue=""
+            className="h-6 px-1 rounded text-[10px] bg-surface text-muted-foreground hover:text-foreground border border-border focus:outline-none"
+          >
+            <option value="" disabled>Aa</option>
+            <option value="1">Muito pequeno</option>
+            <option value="2">Pequeno</option>
+            <option value="3">Normal</option>
+            <option value="4">Médio</option>
+            <option value="5">Grande</option>
+            <option value="6">Muito grande</option>
+            <option value="7">Enorme</option>
+          </select>
           <div className="relative">
             <button
               type="button"
