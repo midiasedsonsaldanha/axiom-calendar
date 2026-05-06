@@ -274,7 +274,7 @@ export function DayPanel({
   };
 
   const dayCount = items.length;
-  const hasSales = false;
+  const hasSales = Object.values(drafts).some((d) => d.salesFocus);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
