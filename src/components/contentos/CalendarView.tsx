@@ -31,6 +31,22 @@ export function CalendarView({ items, onPickDay, onCopyMonth, onMoveItem, readOn
     () => new Date(today.getFullYear(), today.getMonth(), 1),
   );
   const [dragOverIso, setDragOverIso] = useState<string | null>(null);
+  const [rescheduleItem, setRescheduleItem] = useState<ContentItem | null>(null);
+  const navTimerRef = useRef<number | null>(null);
+
+  const armNavOnDrag = (dir: "prev" | "next") => {
+    if (navTimerRef.current) return;
+    navTimerRef.current = window.setTimeout(() => {
+      setCursor((c) => new Date(c.getFullYear(), c.getMonth() + (dir === "next" ? 1 : -1), 1));
+      navTimerRef.current = null;
+    }, 600);
+  };
+  const cancelNavOnDrag = () => {
+    if (navTimerRef.current) {
+      clearTimeout(navTimerRef.current);
+      navTimerRef.current = null;
+    }
+  };
 
   const year = cursor.getFullYear();
   const month = cursor.getMonth();
