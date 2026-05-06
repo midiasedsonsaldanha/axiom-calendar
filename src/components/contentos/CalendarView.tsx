@@ -18,14 +18,16 @@ interface CalendarViewProps {
   items: ContentItem[];
   onPickDay: (iso: string) => void;
   onCopyMonth: (fromIso: string, toIso: string) => number;
+  onMoveItem?: (id: string, newIso: string) => void;
   readOnly?: boolean;
 }
 
-export function CalendarView({ items, onPickDay, onCopyMonth, readOnly = false }: CalendarViewProps) {
+export function CalendarView({ items, onPickDay, onCopyMonth, onMoveItem, readOnly = false }: CalendarViewProps) {
   const today = new Date();
   const [cursor, setCursor] = useState(
     () => new Date(today.getFullYear(), today.getMonth(), 1),
   );
+  const [dragOverIso, setDragOverIso] = useState<string | null>(null);
 
   const year = cursor.getFullYear();
   const month = cursor.getMonth();
