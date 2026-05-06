@@ -61,12 +61,12 @@ const Index = () => {
   const upsert = isReadOnly ? (blockAsync as typeof store.upsert) : store.upsert;
   const remove = isReadOnly ? (blockAsync as typeof store.remove) : store.remove;
   const duplicate = isReadOnly ? (blockAsync as typeof store.duplicate) : store.duplicate;
-  const copyWeek = isReadOnly
-    ? (((..._args: Parameters<typeof store.copyWeek>) => {
+  const copyMonth = isReadOnly
+    ? (((..._args: Parameters<typeof store.copyMonth>) => {
         blockWrite();
         return 0;
-      }) as typeof store.copyWeek)
-    : store.copyWeek;
+      }) as typeof store.copyMonth)
+    : store.copyMonth;
 
   const filtered = useMemo(() => {
     return items.filter((it) => {
@@ -304,7 +304,7 @@ const Index = () => {
             <CalendarView
               items={filtered}
               onPickDay={handlePickDay}
-              onCopyWeek={copyWeek}
+              onCopyMonth={copyMonth}
               readOnly={isReadOnly}
             />
           )}

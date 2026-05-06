@@ -155,24 +155,25 @@ export function useContentStore(ownerId?: string, canWrite = true) {
     [items, user, canWrite, upsert],
   );
 
-  const copyWeek = useCallback(
+  const copyMonth = useCallback(
     (fromIso: string, toIso: string) => {
       if (!canWrite) return 0;
       const fromDate = new Date(fromIso + "T00:00:00");
       const toDate = new Date(toIso + "T00:00:00");
-      const diffDays = Math.round(
-        (toDate.getTime() - fromDate.getTime()) / 86400000,
-      );
-      const weekStart = fromDate.getTime();
-      const weekEnd = weekStart + 7 * 86400000;
-      const inWeek = items.filter((it) => {
-        const d = new Date(it.date + "T00:00:00").getTime();
-        return d >= weekStart && d < weekEnd;
+      const fromYear = fromDate.getFullYear();
+      const fromMonth = fromDate.getMonth();
+      const toYear = toDate.getFullYear();
+      const toMonth = toDate.getMonth();
+      const lastDayOfTarget = new Date(toYear, toMonth + 1, 0).getDate();
+      const inMonth = items.filter((it) => {
+        const d = new Date(it.date + "T00:00:00");
+        return d.getFullYear() === fromYear && d.getMonth() === fromMonth;
       });
       let count = 0;
-      inWeek.forEach((it) => {
-        const newDate = new Date(it.date + "T00:00:00");
-        newDate.setDate(newDate.getDate() + diffDays);
+      inMonth.forEach((it) => {
+        const d = new Date(it.date + "T00:00:00");
+        const day = Math.min(d.getDate(), lastDayOfTarget);
+        const newDate = new Date(toYear, toMonth, day);
         const copy: ContentItem = {
           ...it,
           id: crypto.randomUUID(),
@@ -188,5 +189,5 @@ export function useContentStore(ownerId?: string, canWrite = true) {
     [items, canWrite, upsert],
   );
 
-  return { items, loading, upsert, remove, duplicate, copyWeek, ownerId: effectiveOwnerId };
+  return { items, loading, upsert, remove, duplicate, copyMonth, ownerId: effectiveOwnerId };
 }
