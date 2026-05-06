@@ -54,15 +54,14 @@ export function CalendarView({ items, onPickDay, onCopyMonth, readOnly = false }
   const goNext = () => setCursor(new Date(year, month + 1, 1));
   const goToday = () => setCursor(new Date(today.getFullYear(), today.getMonth(), 1));
 
-  const handleCopyThisWeekToNext = () => {
-    const start = startOfWeekSunday(today);
-    const next = new Date(start);
-    next.setDate(next.getDate() + 7);
-    const created = onCopyWeek(toIso(start), toIso(next));
+  const handleCopyThisMonthToNext = () => {
+    const start = new Date(year, month, 1);
+    const next = new Date(year, month + 1, 1);
+    const created = onCopyMonth(toIso(start), toIso(next));
     toast.success(
       created > 0
-        ? `${created} conteúdo${created > 1 ? "s" : ""} duplicado${created > 1 ? "s" : ""} para a próxima semana`
-        : "Nenhum conteúdo nesta semana para duplicar",
+        ? `${created} conteúdo${created > 1 ? "s" : ""} duplicado${created > 1 ? "s" : ""} para o próximo mês`
+        : "Nenhum conteúdo neste mês para duplicar",
     );
   };
 
