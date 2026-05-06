@@ -373,8 +373,9 @@ export function DayPanel({
           <div className="overflow-x-auto -mx-4 md:mx-0 px-4 md:px-0">
             <div className="min-w-[860px]">
           {/* Column header */}
-            <div className="grid grid-cols-[88px_minmax(0,1.5fr)_120px_minmax(0,1.2fr)_140px_180px_44px] gap-px rounded-t-xl overflow-hidden border border-border bg-border">
+            <div className="grid grid-cols-[88px_130px_minmax(0,1.5fr)_120px_minmax(0,1.2fr)_140px_180px_44px] gap-px rounded-t-xl overflow-hidden border border-border bg-border">
             <HeaderCell>Horário</HeaderCell>
+            <HeaderCell>Tipo</HeaderCell>
             <HeaderCell>Título / Hook</HeaderCell>
             <HeaderCell>Formato</HeaderCell>
             <HeaderCell>Inspiração</HeaderCell>
@@ -396,7 +397,7 @@ export function DayPanel({
                 <div key={id}>
                   <div
                     className={cn(
-                      "grid grid-cols-[88px_minmax(0,1.5fr)_120px_minmax(0,1.2fr)_140px_180px_44px] gap-px bg-border",
+                      "grid grid-cols-[88px_130px_minmax(0,1.5fr)_120px_minmax(0,1.2fr)_140px_180px_44px] gap-px bg-border",
                       !isLast && "border-b border-border",
                     )}
                   >
@@ -419,6 +420,24 @@ export function DayPanel({
                           filled ? "text-foreground" : "text-muted-foreground",
                         )}
                       />
+                    </div>
+
+                    {/* Type */}
+                    <div className={cn("px-1 py-1 flex items-center", filled ? "bg-surface-elevated" : "bg-surface")}>
+                      <Select
+                        value={it.type}
+                        disabled={readOnly}
+                        onValueChange={(v) => updateDraft(id, { type: v as any })}
+                      >
+                        <SelectTrigger className="h-9 border-0 bg-transparent shadow-none text-xs px-2 hover:bg-surface focus:ring-1 focus:ring-primary/40">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[...CONTENT_TYPES].sort((a, b) => a.localeCompare(b, "pt-BR")).map((t) => (
+                            <SelectItem key={t} value={t}>{t}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     {/* Title / Hook */}
@@ -697,7 +716,7 @@ export function DayPanel({
 </head><body>
 <h1>${esc(it.title || "Sem título")}</h1>
 <div class="meta">${esc(it.date)} · ${esc(it.time)} · ${esc(it.type)} · ${esc(it.format)}</div>
-${it.description ? `<div class="meta"><strong>Descrição:</strong> ${esc(it.description)}</div>` : ""}
+
 <div class="sections">
   <div class="section"><h2>Hook</h2><div class="body">${sec.hook || "<em style='color:#999'>—</em>"}</div></div>
   <div class="section"><h2>Desenvolvimento</h2><div class="body">${sec.dev || "<em style='color:#999'>—</em>"}</div></div>
@@ -1069,6 +1088,27 @@ function SectionEditor({
               <Icon className="w-3 h-3" />
             </button>
           ))}
+          <select
+            onMouseDown={(e) => e.stopPropagation()}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (!v) return;
+              exec("fontSize", v);
+              e.target.value = "";
+            }}
+            title="Tamanho da fonte"
+            defaultValue=""
+            className="h-6 px-1 rounded text-[10px] bg-surface text-muted-foreground hover:text-foreground border border-border focus:outline-none"
+          >
+            <option value="" disabled>Aa</option>
+            <option value="1">Muito pequeno</option>
+            <option value="2">Pequeno</option>
+            <option value="3">Normal</option>
+            <option value="4">Médio</option>
+            <option value="5">Grande</option>
+            <option value="6">Muito grande</option>
+            <option value="7">Enorme</option>
+          </select>
           <div className="relative">
             <button
               type="button"

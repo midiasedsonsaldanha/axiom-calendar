@@ -24,7 +24,7 @@ export type ContentType =
   | "Evento"
   | "Expedy"
   | "Avantpro"
-  | "UpSeller"
+  | "Nicho"
   | "Shopee Oficial";
 
 export type ContentFormat = "Reels" | "Post";
@@ -59,7 +59,7 @@ export const CONTENT_TYPES: ContentType[] = [
   "Evento",
   "Expedy",
   "Avantpro",
-  "UpSeller",
+  "Nicho",
   "Shopee Oficial",
 ];
 
