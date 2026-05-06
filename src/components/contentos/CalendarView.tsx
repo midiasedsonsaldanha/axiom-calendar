@@ -149,17 +149,15 @@ export function CalendarView({ items, onPickDay, onCopyWeek, readOnly = false }:
           const isToday = isSameDay(d, today);
           const list = byDate.get(iso) ?? [];
           const hasSales = false;
-          const scheduledCount = list.filter(
-            (it) => it.status === "scheduled" || it.status === "posted",
-          ).length;
+          const postedCount = list.filter((it) => it.status === "posted").length;
           const TOTAL_NETWORKS = 9;
           const allNetworksMarked =
             list.length > 0 &&
             list.every((it) => (it.networks?.length ?? 0) >= TOTAL_NETWORKS);
           const isComplete = allNetworksMarked;
 
-          // intensity bar reflects scheduled progress
-          const intensity = list.length > 0 ? scheduledCount / list.length : 0;
+          // intensity bar reflects how many blocks are fully posted
+          const intensity = list.length > 0 ? postedCount / list.length : 0;
 
           return (
             <button
