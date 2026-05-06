@@ -305,6 +305,11 @@ const Index = () => {
               items={filtered}
               onPickDay={handlePickDay}
               onCopyMonth={copyMonth}
+              onMoveItem={(id, newIso) => {
+                const it = items.find((x) => x.id === id);
+                if (!it || it.date === newIso) return;
+                upsert({ ...it, date: newIso });
+              }}
               readOnly={isReadOnly}
             />
           )}
