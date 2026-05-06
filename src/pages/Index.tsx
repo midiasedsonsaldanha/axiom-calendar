@@ -304,7 +304,7 @@ const Index = () => {
             <CalendarView
               items={filtered}
               onPickDay={handlePickDay}
-              onCopyWeek={copyWeek}
+              onCopyMonth={copyMonth}
               readOnly={isReadOnly}
             />
           )}
