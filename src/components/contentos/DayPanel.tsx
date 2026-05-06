@@ -422,6 +422,24 @@ export function DayPanel({
                       />
                     </div>
 
+                    {/* Type */}
+                    <div className={cn("px-1 py-1 flex items-center", filled ? "bg-surface-elevated" : "bg-surface")}>
+                      <Select
+                        value={it.type}
+                        disabled={readOnly}
+                        onValueChange={(v) => updateDraft(id, { type: v as any })}
+                      >
+                        <SelectTrigger className="h-9 border-0 bg-transparent shadow-none text-xs px-2 hover:bg-surface focus:ring-1 focus:ring-primary/40">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[...CONTENT_TYPES].sort((a, b) => a.localeCompare(b, "pt-BR")).map((t) => (
+                            <SelectItem key={t} value={t}>{t}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
                     {/* Title / Hook */}
                     <button
                       onClick={() => setExpandedId(isExpanded ? null : id)}
