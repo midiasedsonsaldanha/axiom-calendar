@@ -17,11 +17,11 @@ import { toast } from "sonner";
 interface CalendarViewProps {
   items: ContentItem[];
   onPickDay: (iso: string) => void;
-  onCopyWeek: (fromIso: string, toIso: string) => number;
+  onCopyMonth: (fromIso: string, toIso: string) => number;
   readOnly?: boolean;
 }
 
-export function CalendarView({ items, onPickDay, onCopyWeek, readOnly = false }: CalendarViewProps) {
+export function CalendarView({ items, onPickDay, onCopyMonth, readOnly = false }: CalendarViewProps) {
   const today = new Date();
   const [cursor, setCursor] = useState(
     () => new Date(today.getFullYear(), today.getMonth(), 1),
