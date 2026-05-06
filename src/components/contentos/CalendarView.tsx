@@ -108,7 +108,7 @@ export function CalendarView({ items, onPickDay, onCopyMonth, readOnly = false }
           <Button
             variant="outline"
             size="sm"
-            onClick={handleCopyThisWeekToNext}
+            onClick={handleCopyThisMonthToNext}
             className="h-9 gap-2 border-border hover:border-primary/50 hover:text-primary"
           >
             <Copy className="w-3.5 h-3.5" />
