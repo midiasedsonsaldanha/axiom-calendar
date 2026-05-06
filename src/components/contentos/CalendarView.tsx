@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, Plus, Copy, Flame } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, Plus, Copy, Flame, CalendarIcon, MoveRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   buildMonthGrid,
@@ -8,11 +8,14 @@ import {
   toIso,
   WEEKDAYS_SHORT,
   startOfWeekSunday,
+  fromIso,
 } from "@/lib/date";
 import type { ContentItem } from "@/types/content";
 import { STATUS_META, TIME_SLOTS } from "@/types/content";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Calendar } from "@/components/ui/calendar";
 
 interface CalendarViewProps {
   items: ContentItem[];
@@ -28,6 +31,22 @@ export function CalendarView({ items, onPickDay, onCopyMonth, onMoveItem, readOn
     () => new Date(today.getFullYear(), today.getMonth(), 1),
   );
   const [dragOverIso, setDragOverIso] = useState<string | null>(null);
+  const [rescheduleItem, setRescheduleItem] = useState<ContentItem | null>(null);
+  const navTimerRef = useRef<number | null>(null);
+
+  const armNavOnDrag = (dir: "prev" | "next") => {
+    if (navTimerRef.current) return;
+    navTimerRef.current = window.setTimeout(() => {
+      setCursor((c) => new Date(c.getFullYear(), c.getMonth() + (dir === "next" ? 1 : -1), 1));
+      navTimerRef.current = null;
+    }, 600);
+  };
+  const cancelNavOnDrag = () => {
+    if (navTimerRef.current) {
+      clearTimeout(navTimerRef.current);
+      navTimerRef.current = null;
+    }
+  };
 
   const year = cursor.getFullYear();
   const month = cursor.getMonth();
@@ -76,6 +95,10 @@ export function CalendarView({ items, onPickDay, onCopyMonth, onMoveItem, readOn
             variant="ghost"
             size="icon"
             onClick={goPrev}
+            onDragEnter={() => armNavOnDrag("prev")}
+            onDragOver={(e) => e.preventDefault()}
+            onDragLeave={cancelNavOnDrag}
+            onDrop={cancelNavOnDrag}
             className="h-8 w-8 hover:bg-surface-elevated hover:text-primary"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -90,6 +113,10 @@ export function CalendarView({ items, onPickDay, onCopyMonth, onMoveItem, readOn
             variant="ghost"
             size="icon"
             onClick={goNext}
+            onDragEnter={() => armNavOnDrag("next")}
+            onDragOver={(e) => e.preventDefault()}
+            onDragLeave={cancelNavOnDrag}
+            onDrop={cancelNavOnDrag}
             className="h-8 w-8 hover:bg-surface-elevated hover:text-primary"
           >
             <ChevronRight className="w-4 h-4" />
@@ -238,13 +265,26 @@ export function CalendarView({ items, onPickDay, onCopyMonth, onMoveItem, readOn
                       }}
                       title={it.title || it.type}
                       className={cn(
-                        "flex items-center gap-1.5 px-1.5 py-1 rounded-md text-[11px] truncate",
+                        "group flex items-center gap-1.5 px-1.5 py-1 rounded-md text-[11px] truncate",
                         meta.bg,
                         draggable && "cursor-grab active:cursor-grabbing",
                       )}
                     >
                       <span className={cn("status-dot shrink-0", meta.dot)} />
-                      <span className="truncate text-foreground/90">{it.title || it.type}</span>
+                      <span className="truncate text-foreground/90 flex-1">{it.title || it.type}</span>
+                      {draggable && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setRescheduleItem(it);
+                          }}
+                          title="Mover para outra data"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 p-0.5 rounded hover:bg-background/40 text-muted-foreground hover:text-primary"
+                        >
+                          <CalendarIcon className="w-3 h-3" />
+                        </button>
+                      )}
                     </div>
                   );
                 })}
@@ -253,6 +293,31 @@ export function CalendarView({ items, onPickDay, onCopyMonth, onMoveItem, readOn
           );
         })}
       </div>
+
+      <Dialog open={!!rescheduleItem} onOpenChange={(o) => !o && setRescheduleItem(null)}>
+        <DialogContent className="w-auto max-w-fit p-4">
+          <DialogHeader>
+            <DialogTitle className="text-sm">
+              Mover "{rescheduleItem?.title || rescheduleItem?.type}" para...
+            </DialogTitle>
+          </DialogHeader>
+          <Calendar
+            mode="single"
+            selected={rescheduleItem ? fromIso(rescheduleItem.date) : undefined}
+            onSelect={(date) => {
+              if (!date || !rescheduleItem || !onMoveItem) return;
+              const newIso = toIso(date);
+              if (newIso !== rescheduleItem.date) {
+                onMoveItem(rescheduleItem.id, newIso);
+                toast.success("Conteúdo movido");
+              }
+              setRescheduleItem(null);
+            }}
+            initialFocus
+            className={cn("p-3 pointer-events-auto")}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
