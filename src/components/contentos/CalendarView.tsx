@@ -54,7 +54,8 @@ export function CalendarView({ items, onPickDay, onCopyMonth, onMoveItem, readOn
 
   const byDate = useMemo(() => {
     const m = new Map<string, ContentItem[]>();
-    items.forEach((it) => {
+    (items ?? []).forEach((it) => {
+      if (!it || !it.date) return;
       const arr = m.get(it.date) ?? [];
       arr.push(it);
       m.set(it.date, arr);
