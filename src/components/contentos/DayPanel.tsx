@@ -712,7 +712,14 @@ export function DayPanel({
                                     s.replace(/[&<>]/g, (c) =>
                                       c === "&" ? "&amp;" : c === "<" ? "&lt;" : "&gt;",
                                     );
-                                  const sec = parseScript(it.script);
+  const sec = parseScript(it.script);
+                                  const stripHtml = (h: string) =>
+                                    h.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").trim();
+                                  const hasContent = (h: string) => stripHtml(h || "").length > 0;
+                                  const sectionHtml = (title: string, body: string) =>
+                                    hasContent(body)
+                                      ? `<div class="section"><h2>${title}</h2><div class="body">${body}</div></div>`
+                                      : "";
                                   w.document.write(`<!doctype html><html><head><meta charset="utf-8"/><title>Roteiro — ${esc(it.title || "Sem título")}</title>
 <style>
   @page{size:A4;margin:14mm;}
