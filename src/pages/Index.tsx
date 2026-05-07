@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils";
 import { useCalendarShares } from "@/hooks/useCalendarShares";
 import { ShareDialog } from "@/components/contentos/ShareDialog";
 import { useAuth } from "@/contexts/AuthContext";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const Index = () => {
   const [view, setView] = useState<AppView>("dashboard");
