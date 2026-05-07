@@ -712,7 +712,14 @@ export function DayPanel({
                                     s.replace(/[&<>]/g, (c) =>
                                       c === "&" ? "&amp;" : c === "<" ? "&lt;" : "&gt;",
                                     );
-                                  const sec = parseScript(it.script);
+  const sec = parseScript(it.script);
+                                  const stripHtml = (h: string) =>
+                                    h.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").trim();
+                                  const hasContent = (h: string) => stripHtml(h || "").length > 0;
+                                  const sectionHtml = (title: string, body: string) =>
+                                    hasContent(body)
+                                      ? `<div class="section"><h2>${title}</h2><div class="body">${body}</div></div>`
+                                      : "";
                                   w.document.write(`<!doctype html><html><head><meta charset="utf-8"/><title>Roteiro — ${esc(it.title || "Sem título")}</title>
 <style>
   @page{size:A4;margin:14mm;}
@@ -735,9 +742,9 @@ export function DayPanel({
 <div class="meta">${esc(it.date)} · ${esc(it.time)} · ${esc(it.type)} · ${esc(it.format)}</div>
 
 <div class="sections">
-  <div class="section"><h2>Hook</h2><div class="body">${sec.hook || "<em style='color:#999'>—</em>"}</div></div>
-  <div class="section"><h2>Desenvolvimento</h2><div class="body">${sec.dev || "<em style='color:#999'>—</em>"}</div></div>
-  <div class="section"><h2>CTA</h2><div class="body">${sec.cta || "<em style='color:#999'>—</em>"}</div></div>
+  ${sectionHtml("Hook", sec.hook)}
+  ${sectionHtml("Desenvolvimento", sec.dev)}
+  ${sectionHtml("CTA", sec.cta)}
 </div>
 ${imgs.length ? `<h2 style="font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#666;margin:14px 0 6px;">Imagens</h2><div class="imgs">${imgs.map((u) => `<img src="${u}"/>`).join("")}</div>` : ""}
 <script>window.onload=()=>setTimeout(()=>window.print(),300);<\/script>
