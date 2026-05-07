@@ -742,9 +742,9 @@ export function DayPanel({
 <div class="meta">${esc(it.date)} · ${esc(it.time)} · ${esc(it.type)} · ${esc(it.format)}</div>
 
 <div class="sections">
-  <div class="section"><h2>Hook</h2><div class="body">${sec.hook || "<em style='color:#999'>—</em>"}</div></div>
-  <div class="section"><h2>Desenvolvimento</h2><div class="body">${sec.dev || "<em style='color:#999'>—</em>"}</div></div>
-  <div class="section"><h2>CTA</h2><div class="body">${sec.cta || "<em style='color:#999'>—</em>"}</div></div>
+  ${sectionHtml("Hook", sec.hook)}
+  ${sectionHtml("Desenvolvimento", sec.dev)}
+  ${sectionHtml("CTA", sec.cta)}
 </div>
 ${imgs.length ? `<h2 style="font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#666;margin:14px 0 6px;">Imagens</h2><div class="imgs">${imgs.map((u) => `<img src="${u}"/>`).join("")}</div>` : ""}
 <script>window.onload=()=>setTimeout(()=>window.print(),300);<\/script>
