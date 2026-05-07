@@ -297,38 +297,49 @@ const Index = () => {
         </div>
 
         <main className="flex-1 p-4 md:p-8 max-w-[1400px] w-full mx-auto">
-          {view === "dashboard" ? (
-            <Dashboard items={items} onJumpCalendar={() => setView("calendar")} />
-          ) : view === "insights" ? (
-            <InsightsView />
-          ) : (
-            <CalendarView
-              items={filtered}
-              onPickDay={handlePickDay}
-              onCopyMonth={copyMonth}
-              onMoveItem={(id, newIso) => {
-                const it = items.find((x) => x.id === id);
-                if (!it || it.date === newIso) return;
-                upsert({ ...it, date: newIso });
-              }}
-              readOnly={isReadOnly}
-            />
-          )}
+          <ErrorBoundary label={`view:${view}`}>
+            {view === "dashboard" ? (
+              <Dashboard items={items} onJumpCalendar={() => setView("calendar")} />
+            ) : view === "insights" ? (
+              <InsightsView />
+            ) : (
+              <CalendarView
+                items={filtered}
+                onPickDay={handlePickDay}
+                onCopyMonth={copyMonth}
+                onMoveItem={(id, newIso) => {
+                  try {
+                    const it = items.find((x) => x.id === id);
+                    if (!it || it.date === newIso) return;
+                    upsert({ ...it, date: newIso });
+                  } catch (err) {
+                    console.error("onMoveItem failed:", err);
+                  }
+                }}
+                readOnly={isReadOnly}
+              />
+            )}
+          </ErrorBoundary>
         </main>
       </div>
 
-      <DayPanel
-        open={openPanel}
-        onOpenChange={setOpenPanel}
-        iso={pickedDay}
-        items={dayItems}
-        upsert={upsert}
-        remove={remove}
-        duplicate={duplicate}
-        readOnly={isReadOnly}
-        onChangeIso={(iso) => setPickedDay(iso)}
-      />
+      <ErrorBoundary label="DayPanel" silent>
+        <DayPanel
+          open={openPanel}
+          onOpenChange={setOpenPanel}
+          iso={pickedDay}
+          items={dayItems}
+          upsert={upsert}
+          remove={remove}
+          duplicate={duplicate}
+          readOnly={isReadOnly}
+          onChangeIso={(iso) => setPickedDay(iso)}
+        />
+      </ErrorBoundary>
 
+      <ErrorBoundary label="ShareDialog" silent>
+        <ShareDialog open={shareOpen} onOpenChange={setShareOpen} />
+      </ErrorBoundary>
       <ShareDialog open={shareOpen} onOpenChange={setShareOpen} />
     </div>
   );
