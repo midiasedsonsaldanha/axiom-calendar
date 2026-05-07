@@ -145,38 +145,35 @@ export function Dashboard({ items, onJumpCalendar }: DashboardProps) {
           </div>
         </div>
 
-        {/* Format donut-like */}
+        {/* Status breakdown */}
         <div className="rounded-2xl border border-border bg-surface p-6 shadow-card">
-          <h3 className="font-display text-lg font-semibold">Por objetivo</h3>
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-0.5 mb-5">
-            Formato dominante
+          <h3 className="font-display text-lg font-semibold">Pipeline de status</h3>
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-0.5 mb-4">
+            Onde está cada conteúdo
           </p>
-          <div className="space-y-3">
-            {CONTENT_FORMATS.map((f) => {
-              const v = byFormat[f] ?? 0;
-              const pct = Math.round((v / totalForFormat) * 100);
-              const isSale = false;
-              return (
-                <div key={f}>
-                  <div className="flex items-center justify-between text-xs mb-1">
-                    <span className={cn("flex items-center gap-1.5", isSale && "text-primary")}>
-                      {isSale && <Flame className="w-3 h-3" />}
-                      {f}
-                    </span>
-                    <span className="font-mono text-muted-foreground">{v} · {pct}%</span>
+          <div className="grid grid-cols-2 gap-3">
+            {(Object.keys(STATUS_META) as Array<keyof typeof STATUS_META>)
+              .filter((s) => s !== "pending" && s !== "production")
+              .map((s) => {
+                const meta = STATUS_META[s];
+                const v = monthItems.filter((i) => i.status === s).length;
+                const pct = total ? Math.round((v / total) * 100) : 0;
+                return (
+                  <div
+                    key={s}
+                    className="p-3 rounded-xl border border-border bg-surface-elevated"
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className={cn("status-dot", meta.dot)} />
+                      <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                        {pct}%
+                      </span>
+                    </div>
+                    <p className="font-display text-2xl font-semibold">{v}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{meta.label}</p>
                   </div>
-                  <div className="h-1.5 rounded-full bg-border/40 overflow-hidden">
-                    <div
-                      className={cn(
-                        "h-full rounded-full transition-all duration-700",
-                        isSale ? "bg-gradient-primary" : "bg-foreground/60",
-                      )}
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </div>
       </div>
@@ -224,30 +221,28 @@ export function Dashboard({ items, onJumpCalendar }: DashboardProps) {
           </div>
         </div>
 
-        {/* Status breakdown */}
+        {/* Por objetivo */}
         <div className="rounded-2xl border border-border bg-surface p-6 shadow-card">
-          <h3 className="font-display text-lg font-semibold">Pipeline de status</h3>
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-0.5 mb-4">
-            Onde está cada conteúdo
+          <h3 className="font-display text-lg font-semibold">Por objetivo</h3>
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground mt-0.5 mb-5">
+            Formato dominante
           </p>
-          <div className="grid grid-cols-2 gap-3">
-            {(Object.keys(STATUS_META) as Array<keyof typeof STATUS_META>).map((s) => {
-              const meta = STATUS_META[s];
-              const v = monthItems.filter((i) => i.status === s).length;
-              const pct = total ? Math.round((v / total) * 100) : 0;
+          <div className="space-y-3">
+            {CONTENT_FORMATS.map((f) => {
+              const v = byFormat[f] ?? 0;
+              const pct = Math.round((v / totalForFormat) * 100);
               return (
-                <div
-                  key={s}
-                  className="p-4 rounded-xl border border-border bg-surface-elevated"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className={cn("status-dot", meta.dot)} />
-                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                      {pct}%
-                    </span>
+                <div key={f}>
+                  <div className="flex items-center justify-between text-xs mb-1">
+                    <span>{f}</span>
+                    <span className="font-mono text-muted-foreground">{v} · {pct}%</span>
                   </div>
-                  <p className="font-display text-3xl font-semibold">{v}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{meta.label}</p>
+                  <div className="h-1.5 rounded-full bg-border/40 overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-700 bg-foreground/60"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
                 </div>
               );
             })}
