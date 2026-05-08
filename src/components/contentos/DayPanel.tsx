@@ -442,13 +442,19 @@ export function DayPanel({
           </div>
 
           <div className="rounded-b-xl overflow-hidden border border-t-0 border-border">
-            {rowOrder.map((id, idx) => {
+            {[...rowOrder]
+              .sort((a, b) => {
+                const ta = drafts[a]?.time || "~";
+                const tb = drafts[b]?.time || "~";
+                return ta.localeCompare(tb);
+              })
+              .map((id, idx, arr) => {
               const it = drafts[id];
               if (!it) return null;
               const meta = STATUS_META[it.status];
               const filled = isFilled(it);
               const isExpanded = expandedId === id;
-              const isLast = idx === rowOrder.length - 1;
+              const isLast = idx === arr.length - 1;
 
               return (
                 <div key={id}>
