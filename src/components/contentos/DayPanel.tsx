@@ -1266,6 +1266,27 @@ function SectionEditor({
             <option value="6">Muito grande</option>
             <option value="7">Enorme</option>
           </select>
+          <select
+            onMouseDown={(e) => e.stopPropagation()}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (!v) return;
+              applyLineHeight(v);
+              e.target.value = "";
+            }}
+            title="Espaçamento entre linhas"
+            defaultValue=""
+            className="h-6 px-1 rounded text-[10px] bg-surface text-muted-foreground hover:text-foreground border border-border focus:outline-none"
+          >
+            <option value="" disabled>↕</option>
+            <option value="1">Simples (1.0)</option>
+            <option value="1.15">1.15</option>
+            <option value="1.5">1.5</option>
+            <option value="1.75">1.75</option>
+            <option value="2">Duplo (2.0)</option>
+            <option value="2.5">2.5</option>
+            <option value="3">3.0</option>
+          </select>
           <div className="relative">
             <button
               type="button"
