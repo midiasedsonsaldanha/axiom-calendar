@@ -250,6 +250,16 @@ export function DayPanel({
       });
     }
   };
+  saveAllRef.current = handleSaveAll;
+  const _handleSaveAll_legacy = (opts: { silent?: boolean } = {}) => {
+    if (readOnly || !date) return;
+    Object.keys(drafts).forEach((id) => persist(id));
+    if (!opts.silent) {
+      toast.success("Dia salvo", {
+        description: `${WEEKDAYS_FULL[weekday]} · ${date.toLocaleDateString("pt-BR")}`,
+      });
+    }
+  };
 
   const handleRemoveRow = (id: string) => {
     if (readOnly) return;
