@@ -156,6 +156,23 @@ export function DayPanel({
     setExpandedId(null);
   }, [iso, items, readOnly]);
 
+  // ref to latest save fn so the auto-save interval doesn't go stale
+  const saveAllRef = useRef<(opts?: { silent?: boolean }) => void>(() => {});
+
+  // auto-save every 2 minutes while the panel is open
+  useEffect(() => {
+    if (!open || readOnly || !iso) return;
+    const id = window.setInterval(() => {
+      try {
+        saveAllRef.current({ silent: true });
+        toast("Salvo automaticamente", { description: "auto-save a cada 2 min" });
+      } catch (err) {
+        console.error("auto-save failed:", err);
+      }
+    }, 120000);
+    return () => window.clearInterval(id);
+  }, [open, readOnly, iso]);
+
   if (!iso || !date) {
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
