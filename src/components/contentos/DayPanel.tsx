@@ -325,6 +325,9 @@ export function DayPanel({
       <SheetContent
         side="right"
         className="w-full sm:max-w-[min(1400px,60vw)] p-0 bg-background border-l border-border overflow-y-auto"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
       >
         {/* Sticky header */}
         <div className="sticky top-0 z-20 backdrop-blur-xl bg-background/90 border-b border-border">
