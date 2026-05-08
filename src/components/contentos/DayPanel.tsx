@@ -1156,6 +1156,51 @@ function SectionEditor({
     if (ref.current) onChange(ref.current.innerHTML);
   };
 
+  const applyLineHeight = (lh: string) => {
+    const root = ref.current;
+    if (!root) return;
+    root.focus();
+    const sel = window.getSelection();
+    const isBlock = (n: Node | null): n is HTMLElement =>
+      !!n && n.nodeType === 1 && ["P", "DIV", "H1", "H2", "H3", "H4", "LI", "BLOCKQUOTE"].includes((n as HTMLElement).tagName);
+    const closestBlock = (n: Node | null): HTMLElement | null => {
+      let cur: Node | null = n;
+      while (cur && cur !== root) {
+        if (isBlock(cur)) return cur as HTMLElement;
+        cur = cur.parentNode;
+      }
+      return root;
+    };
+    const targets = new Set<HTMLElement>();
+    if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
+      const range = sel.getRangeAt(0);
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, {
+        acceptNode: (node) =>
+          isBlock(node) && range.intersectsNode(node)
+            ? NodeFilter.FILTER_ACCEPT
+            : NodeFilter.FILTER_SKIP,
+      });
+      let n: Node | null = walker.nextNode();
+      while (n) {
+        targets.add(n as HTMLElement);
+        n = walker.nextNode();
+      }
+      const s = closestBlock(range.startContainer);
+      const e = closestBlock(range.endContainer);
+      if (s) targets.add(s);
+      if (e) targets.add(e);
+    } else if (sel && sel.rangeCount > 0) {
+      const b = closestBlock(sel.getRangeAt(0).startContainer);
+      if (b) targets.add(b);
+    } else {
+      targets.add(root);
+    }
+    targets.forEach((el) => {
+      el.style.lineHeight = lh;
+    });
+    onChange(root.innerHTML);
+  };
+
   const tools: { icon: typeof Bold; title: string; cmd: string; arg?: string }[] = [
     { icon: Bold, title: "Negrito", cmd: "bold" },
     { icon: Italic, title: "Itálico", cmd: "italic" },
@@ -1220,6 +1265,27 @@ function SectionEditor({
             <option value="5">Grande</option>
             <option value="6">Muito grande</option>
             <option value="7">Enorme</option>
+          </select>
+          <select
+            onMouseDown={(e) => e.stopPropagation()}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (!v) return;
+              applyLineHeight(v);
+              e.target.value = "";
+            }}
+            title="Espaçamento entre linhas"
+            defaultValue=""
+            className="h-6 px-1 rounded text-[10px] bg-surface text-muted-foreground hover:text-foreground border border-border focus:outline-none"
+          >
+            <option value="" disabled>↕</option>
+            <option value="1">Simples (1.0)</option>
+            <option value="1.15">1.15</option>
+            <option value="1.5">1.5</option>
+            <option value="1.75">1.75</option>
+            <option value="2">Duplo (2.0)</option>
+            <option value="2.5">2.5</option>
+            <option value="3">3.0</option>
           </select>
           <div className="relative">
             <button
