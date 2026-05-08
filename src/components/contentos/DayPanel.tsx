@@ -383,7 +383,7 @@ export function DayPanel({
             {!readOnly && (
               <Button
                 size="sm"
-                onClick={handleSaveAll}
+                onClick={() => handleSaveAll()}
                 className="h-9 px-4 bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-glow-soft"
               >
                 Salvar dia
