@@ -224,39 +224,15 @@ export function DayPanel({
     upsert(it);
   };
 
-  const handleSaveAll = useCallback(
-    (opts: { silent?: boolean } = {}) => {
-      if (readOnly) return;
-      Object.keys(drafts).forEach((id) => persist(id));
-      if (!opts.silent) {
-        toast.success("Dia salvo", {
-          description: `${WEEKDAYS_FULL[weekday]} · ${date.toLocaleDateString("pt-BR")}`,
-        });
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [drafts, readOnly, weekday, iso],
-  );
-
-  // keep latest save fn in a ref so the interval doesn't go stale
-  const saveAllRef = useRef(handleSaveAll);
-  useEffect(() => {
-    saveAllRef.current = handleSaveAll;
-  }, [handleSaveAll]);
-
-  // auto-save every 2 minutes while the panel is open
-  useEffect(() => {
-    if (!open || readOnly || !iso) return;
-    const id = window.setInterval(() => {
-      try {
-        saveAllRef.current({ silent: true });
-        toast("Salvo automaticamente", { description: "auto-save a cada 2 min" });
-      } catch (err) {
-        console.error("auto-save failed:", err);
-      }
-    }, 120000);
-    return () => window.clearInterval(id);
-  }, [open, readOnly, iso]);
+  const handleSaveAll = (opts: { silent?: boolean } = {}) => {
+    if (readOnly || !date) return;
+    Object.keys(drafts).forEach((id) => persist(id));
+    if (!opts.silent) {
+      toast.success("Dia salvo", {
+        description: `${WEEKDAYS_FULL[weekday]} · ${date.toLocaleDateString("pt-BR")}`,
+      });
+    }
+  };
 
   const handleRemoveRow = (id: string) => {
     if (readOnly) return;
