@@ -60,6 +60,9 @@ export function CalendarView({ items, onPickDay, onCopyMonth, onMoveItem, readOn
       arr.push(it);
       m.set(it.date, arr);
     });
+    m.forEach((arr) =>
+      arr.sort((a, b) => (a.time || "~").localeCompare(b.time || "~")),
+    );
     return m;
   }, [items]);
 
