@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, useEffect } from "react";
+import { useMemo, useRef, useState, useEffect, useCallback } from "react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -114,13 +114,31 @@ export function DayPanel({
   // expanded row for full editor (script/description)
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  // build draft map from items for this day; if none, seed the default grid
+  // build draft map from items for this day; only reseed when the day changes.
+  // when items update from realtime, merge new ones in WITHOUT overwriting in-progress drafts
+  const lastIsoRef = useRef<string | null>(null);
   useEffect(() => {
     if (!iso) return;
+    if (lastIsoRef.current === iso) {
+      // same day, items changed via realtime/save — merge non-destructively
+      setDrafts((prev) => {
+        const next = { ...prev };
+        items.forEach((it) => {
+          if (!next[it.id]) next[it.id] = it;
+        });
+        return next;
+      });
+      setRowOrder((prev) => {
+        const set = new Set(prev);
+        const additions = items.filter((it) => !set.has(it.id)).map((it) => it.id);
+        return additions.length ? [...prev, ...additions] : prev;
+      });
+      return;
+    }
+    lastIsoRef.current = iso;
     const map: Record<string, ContentItem> = {};
     const order: string[] = [];
     if (items.length === 0 && !readOnly) {
-      // seed defaults the first time the user opens an empty day
       TIME_SLOTS.filter((s) => s !== "Extra").forEach((slot) => {
         const it = empty(iso, slot);
         map[it.id] = it;
@@ -206,13 +224,39 @@ export function DayPanel({
     upsert(it);
   };
 
-  const handleSaveAll = () => {
-    if (readOnly) return;
-    Object.keys(drafts).forEach((id) => persist(id));
-    toast.success("Dia salvo", {
-      description: `${WEEKDAYS_FULL[weekday]} · ${date.toLocaleDateString("pt-BR")}`,
-    });
-  };
+  const handleSaveAll = useCallback(
+    (opts: { silent?: boolean } = {}) => {
+      if (readOnly) return;
+      Object.keys(drafts).forEach((id) => persist(id));
+      if (!opts.silent) {
+        toast.success("Dia salvo", {
+          description: `${WEEKDAYS_FULL[weekday]} · ${date.toLocaleDateString("pt-BR")}`,
+        });
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [drafts, readOnly, weekday, iso],
+  );
+
+  // keep latest save fn in a ref so the interval doesn't go stale
+  const saveAllRef = useRef(handleSaveAll);
+  useEffect(() => {
+    saveAllRef.current = handleSaveAll;
+  }, [handleSaveAll]);
+
+  // auto-save every 2 minutes while the panel is open
+  useEffect(() => {
+    if (!open || readOnly || !iso) return;
+    const id = window.setInterval(() => {
+      try {
+        saveAllRef.current({ silent: true });
+        toast("Salvo automaticamente", { description: "auto-save a cada 2 min" });
+      } catch (err) {
+        console.error("auto-save failed:", err);
+      }
+    }, 120000);
+    return () => window.clearInterval(id);
+  }, [open, readOnly, iso]);
 
   const handleRemoveRow = (id: string) => {
     if (readOnly) return;
@@ -281,6 +325,9 @@ export function DayPanel({
       <SheetContent
         side="right"
         className="w-full sm:max-w-[min(1400px,60vw)] p-0 bg-background border-l border-border overflow-y-auto"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
       >
         {/* Sticky header */}
         <div className="sticky top-0 z-20 backdrop-blur-xl bg-background/90 border-b border-border">
@@ -339,7 +386,7 @@ export function DayPanel({
             {!readOnly && (
               <Button
                 size="sm"
-                onClick={handleSaveAll}
+                onClick={() => handleSaveAll()}
                 className="h-9 px-4 bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-glow-soft"
               >
                 Salvar dia
