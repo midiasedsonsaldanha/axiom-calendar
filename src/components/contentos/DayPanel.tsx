@@ -136,18 +136,40 @@ export function DayPanel({
   useEffect(() => {
     if (!iso) return;
     if (lastIsoRef.current === iso) {
-      // same day, items changed via realtime/save — merge non-destructively
+      // same day, items changed via realtime/save — merge non-destructively,
+      // but drop drafts whose item moved to another day (date no longer matches)
+      const itemsById = new Map(items.map((it) => [it.id, it]));
       setDrafts((prev) => {
-        const next = { ...prev };
+        const next: Record<string, ContentItem> = {};
+        Object.entries(prev).forEach(([id, draft]) => {
+          const fromDb = itemsById.get(id);
+          if (fromDb) {
+            // exists in db: keep only if still on this day
+            if (fromDb.date === iso) next[id] = draft;
+          } else {
+            // not in db yet: unsaved local row — keep only if still on this day
+            if (draft.date === iso) next[id] = draft;
+          }
+        });
         items.forEach((it) => {
           if (!next[it.id]) next[it.id] = it;
         });
         return next;
       });
       setRowOrder((prev) => {
-        const set = new Set(prev);
+        const validIds = new Set<string>();
+        prev.forEach((id) => {
+          const fromDb = itemsById.get(id);
+          if (fromDb) {
+            if (fromDb.date === iso) validIds.add(id);
+          } else {
+            validIds.add(id); // unsaved row — filtered against drafts below
+          }
+        });
+        const filtered = prev.filter((id) => validIds.has(id));
+        const set = new Set(filtered);
         const additions = items.filter((it) => !set.has(it.id)).map((it) => it.id);
-        return additions.length ? [...prev, ...additions] : prev;
+        return additions.length ? [...filtered, ...additions] : filtered;
       });
       return;
     }
