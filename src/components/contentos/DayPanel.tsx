@@ -105,8 +105,24 @@ export function DayPanel({
   const [rowOrder, setRowOrder] = useState<string[]>([]);
   // remembers the status before "auto-postado" was applied via "todas redes marcadas"
   const [prevStatus, setPrevStatus] = useState<Record<string, ContentStatus>>({});
-  // images uploaded per row (data URLs, in-memory only)
-  const [scriptImages, setScriptImages] = useState<Record<string, string[]>>({});
+  // images uploaded per row (data URLs, persisted in localStorage by item id)
+  const SCRIPT_IMAGES_KEY = "contentos:scriptImages:v1";
+  const [scriptImages, setScriptImages] = useState<Record<string, string[]>>(() => {
+    try {
+      const raw = localStorage.getItem(SCRIPT_IMAGES_KEY);
+      return raw ? (JSON.parse(raw) as Record<string, string[]>) : {};
+    } catch {
+      return {};
+    }
+  });
+  // persist whenever it changes (debounced via microtask)
+  useEffect(() => {
+    try {
+      localStorage.setItem(SCRIPT_IMAGES_KEY, JSON.stringify(scriptImages));
+    } catch {
+      // quota exceeded — ignore silently to avoid breaking UI
+    }
+  }, [scriptImages]);
   // image lightbox preview
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   // refs to script textareas for formatting buttons
