@@ -114,13 +114,31 @@ export function DayPanel({
   // expanded row for full editor (script/description)
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  // build draft map from items for this day; if none, seed the default grid
+  // build draft map from items for this day; only reseed when the day changes.
+  // when items update from realtime, merge new ones in WITHOUT overwriting in-progress drafts
+  const lastIsoRef = useRef<string | null>(null);
   useEffect(() => {
     if (!iso) return;
+    if (lastIsoRef.current === iso) {
+      // same day, items changed via realtime/save — merge non-destructively
+      setDrafts((prev) => {
+        const next = { ...prev };
+        items.forEach((it) => {
+          if (!next[it.id]) next[it.id] = it;
+        });
+        return next;
+      });
+      setRowOrder((prev) => {
+        const set = new Set(prev);
+        const additions = items.filter((it) => !set.has(it.id)).map((it) => it.id);
+        return additions.length ? [...prev, ...additions] : prev;
+      });
+      return;
+    }
+    lastIsoRef.current = iso;
     const map: Record<string, ContentItem> = {};
     const order: string[] = [];
     if (items.length === 0 && !readOnly) {
-      // seed defaults the first time the user opens an empty day
       TIME_SLOTS.filter((s) => s !== "Extra").forEach((slot) => {
         const it = empty(iso, slot);
         map[it.id] = it;
