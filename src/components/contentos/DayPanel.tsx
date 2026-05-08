@@ -1156,6 +1156,51 @@ function SectionEditor({
     if (ref.current) onChange(ref.current.innerHTML);
   };
 
+  const applyLineHeight = (lh: string) => {
+    const root = ref.current;
+    if (!root) return;
+    root.focus();
+    const sel = window.getSelection();
+    const isBlock = (n: Node | null): n is HTMLElement =>
+      !!n && n.nodeType === 1 && ["P", "DIV", "H1", "H2", "H3", "H4", "LI", "BLOCKQUOTE"].includes((n as HTMLElement).tagName);
+    const closestBlock = (n: Node | null): HTMLElement | null => {
+      let cur: Node | null = n;
+      while (cur && cur !== root) {
+        if (isBlock(cur)) return cur as HTMLElement;
+        cur = cur.parentNode;
+      }
+      return root;
+    };
+    const targets = new Set<HTMLElement>();
+    if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
+      const range = sel.getRangeAt(0);
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT, {
+        acceptNode: (node) =>
+          isBlock(node) && range.intersectsNode(node)
+            ? NodeFilter.FILTER_ACCEPT
+            : NodeFilter.FILTER_SKIP,
+      });
+      let n: Node | null = walker.nextNode();
+      while (n) {
+        targets.add(n as HTMLElement);
+        n = walker.nextNode();
+      }
+      const s = closestBlock(range.startContainer);
+      const e = closestBlock(range.endContainer);
+      if (s) targets.add(s);
+      if (e) targets.add(e);
+    } else if (sel && sel.rangeCount > 0) {
+      const b = closestBlock(sel.getRangeAt(0).startContainer);
+      if (b) targets.add(b);
+    } else {
+      targets.add(root);
+    }
+    targets.forEach((el) => {
+      el.style.lineHeight = lh;
+    });
+    onChange(root.innerHTML);
+  };
+
   const tools: { icon: typeof Bold; title: string; cmd: string; arg?: string }[] = [
     { icon: Bold, title: "Negrito", cmd: "bold" },
     { icon: Italic, title: "Itálico", cmd: "italic" },
