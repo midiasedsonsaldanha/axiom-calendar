@@ -99,7 +99,13 @@ export function Dashboard({ items, onJumpCalendar }: DashboardProps) {
 
         <div className="relative grid grid-cols-2 md:grid-cols-4 border-t border-border">
           <KpiCell icon={Layers} label="Total no mês" value={total.toString()} />
-          <KpiCell icon={Flame} label="Foco em vendas" value={sales.toString()} accent />
+          <KpiCell
+            icon={Flame}
+            label="Foco em vendas"
+            value={sales.toString()}
+            sub={`${total ? Math.round((sales / total) * 100) : 0}% do mês`}
+            accent
+          />
           <KpiCell icon={Zap} label="Postados" value={posted.toString()} />
           <KpiCell
             icon={TrendingUp}
