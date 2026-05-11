@@ -289,14 +289,23 @@ function KpiCell({
           {label}
         </span>
       </div>
-      <p className={cn("font-display text-3xl md:text-4xl font-semibold", accent && "gradient-text")}>
-        {value}
-      </p>
-      {sub && (
-        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground mt-1">
-          {sub}
+      <div className="flex items-baseline gap-2">
+        <p className={cn("font-display text-3xl md:text-4xl font-semibold", accent && "gradient-text")}>
+          {value}
         </p>
-      )}
+        {sub && (
+          <span
+            className={cn(
+              "font-mono text-xs font-semibold px-2 py-0.5 rounded-md border",
+              accent
+                ? "bg-primary/15 border-primary/40 text-primary"
+                : "bg-surface-elevated border-border text-muted-foreground",
+            )}
+          >
+            {sub}
+          </span>
+        )}
+      </div>
     </div>
   );
 }
